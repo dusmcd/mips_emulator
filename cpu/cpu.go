@@ -21,17 +21,15 @@ const (
 	SHIFT_BITS = 5
 	FUNC_BITS = 6
 	IMM_BITS = 16
+	MAX32 = 2147483647
 )
 
 
 
-type RFunc func(uint8, uint8, uint8, uint8, *RegFile) error
+type RFunc func(rs, rt, rd, shift uint8) error
 
-var funcMap map[uint8]RFunc = map[uint8]RFunc{
-	0x20: addInstr,
-	0x22: subInstr,
-}
-
+var funcMap map[uint8]RFunc 
+	
 /**
 	32-bit architecture using the MIPS ISA
 	R-type:
@@ -41,6 +39,7 @@ var funcMap map[uint8]RFunc = map[uint8]RFunc{
 type CPU struct {
 	PC uint32 // addr of next instruction
 	Registers *RegFile
+	HiLow *HiLowRegs
 	Instruction uint32 // encoded instruction
 }
 
@@ -49,21 +48,94 @@ func InitCPU() *CPU {
 	var regFile RegFile
 	cpu.Registers = &regFile
 
+	funcMap = map[uint8]RFunc{
+	0x20: cpu.addInstr,
+	0x22: cpu.subInstr,
+	0x21: cpu.addUInstr,
+	0x23: cpu.subUInstr,
+	0x18: cpu.multInstr,
+	0x19: cpu.multUInstr,
+	0x1A: cpu.divInstr,
+	0x1B: cpu.divUInstr,
+}
+
+
 	return cpu
 }
 
-func subInstr(rs, rt, rd, shift uint8, regs *RegFile) error {
-	op1 := regs[rs]
-	op2 := regs[rt]
-	regs[rd] = op1 - op2
+func (cpu *CPU) divInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	cpu.HiLow.lo = op1 / op2
+	cpu.HiLow.hi = op1 % op2
 
 	return nil
 }
 
-func addInstr(rs, rt, rd, shift uint8, regs *RegFile) error {
-	op1 := regs[rs]
-	op2 := regs[rt]
-	regs[rd] = op1 + op2
+func (cpu *CPU) divUInstr(rs, rt, rd, shift uint8) error {
+	op1 := uint32(cpu.Registers[rs])
+	op2 := uint32(cpu.Registers[rt])
+	cpu.HiLow.lo = int32(op1 / op2)
+	cpu.HiLow.hi = int32(op1 % op2)
+
+	return nil
+}
+
+func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
+	op1 := uint32(cpu.Registers[rs])
+	op2 := uint32(cpu.Registers[rt])
+	product := int(op1 * op2)
+	cpu.HiLow.hi = int32(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	cpu.HiLow.lo = int32(uint(product) & uint(0x00000000FFFFFFFF))
+
+	return nil
+}
+
+func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	product := int(op1 * op2)
+	cpu.HiLow.hi = int32(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	cpu.HiLow.lo = int32(uint(product) & uint(0x00000000FFFFFFFF))
+
+	return nil
+}
+
+func (cpu *CPU) subUInstr(rs, rt, rd, shift uint8) error {
+	op1 := uint32(cpu.Registers[rs])
+	op2 := uint32(cpu.Registers[rt])
+	cpu.Registers[rd] = int32(op1 - op2)
+
+	return nil
+}
+
+func (cpu *CPU) subInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	check := int(op1 - op2)
+	if check > MAX32 {
+		return errors.New("signed overflow exception")
+	}
+	cpu.Registers[rd] = int32(check)
+
+	return nil
+}
+
+func (cpu *CPU) addUInstr(rs, rt, rd, shift uint8) error {
+		op1 := uint32(cpu.Registers[rs])
+		op2 := uint32(cpu.Registers[rt])
+		cpu.Registers[rd] = int32(op1 + op2)
+		return nil
+}
+
+func (cpu *CPU) addInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	check := int(op1 + op2)
+	if check > MAX32 {
+		return errors.New("signed overflow exception")
+	}
+	cpu.Registers[rd] = int32(check)
 
 	return nil
 }
@@ -77,7 +149,7 @@ func (cpu *CPU) decodeRType()  error {
 	shift := uint8(cpu.Instruction & 0x000007C0 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS - RD_BITS - SHIFT_BITS))
 
 	// execute operation
-	funcMap[funcCode](rs, rt, rd, shift, cpu.Registers)	
+	funcMap[funcCode](rs, rt, rd, shift)	
 	return nil
 }
 
