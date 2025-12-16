@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"testing"
+	"mips_emulator/defs"
 )
 
 func TestAnd(t *testing.T) {
@@ -67,16 +68,16 @@ func TestNor(t *testing.T) {
 func TestMultiplyU(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[8] = -1
-	cpu.Registers[9] = 1
+	cpu.Registers[9] = 2
 
 	
 	cpu.Instruction = 0x01285019
 	cpu.DecodeInstr()
-	var signedInt int32 = -1
+	var signedInt defs.Word = -2
 	expected := uint32(signedInt)
 
-	hi := int32(uint(expected) & 0xFFFFFFFF00000000 >> 32)
-	lo := int32(uint(expected) & 0x00000000FFFFFFFF)
+	hi := defs.Word(uint(expected) & 0xFFFFFFFF00000000 >> 32)
+	lo := defs.Word(uint(expected) & 0x00000000FFFFFFFF)
 
 	if cpu.HiLow.lo != lo {
 		t.Errorf("lo register wrong. expected=%d, got=%d", lo, cpu.HiLow.lo)

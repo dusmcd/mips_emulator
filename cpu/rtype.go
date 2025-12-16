@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"errors"
+	"mips_emulator/defs"
 )
 
 type RFunc func(rs, rt, rd, shift uint8) error
@@ -28,8 +29,8 @@ func (cpu *CPU) divUInstr(rs, rt, rd, shift uint8) error {
 	if op2 == 0 {
 		return errors.New("divide by zero exception")
 	}
-	cpu.HiLow.lo = int32(op1 / op2)
-	cpu.HiLow.hi = int32(op1 % op2)
+	cpu.HiLow.lo = defs.Word(op1 / op2)
+	cpu.HiLow.hi = defs.Word(op1 % op2)
 
 	return nil
 }
@@ -38,8 +39,8 @@ func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
 	op1 := uint32(cpu.Registers[rs])
 	op2 := uint32(cpu.Registers[rt])
 	product := int(op1 * op2)
-	cpu.HiLow.hi = int32(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
-	cpu.HiLow.lo = int32(uint(product) & uint(0x00000000FFFFFFFF))
+	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
 	return nil
 }
@@ -48,8 +49,8 @@ func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
 	product := int(op1 * op2)
-	cpu.HiLow.hi = int32(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
-	cpu.HiLow.lo = int32(uint(product) & uint(0x00000000FFFFFFFF))
+	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
 	return nil
 }
@@ -69,7 +70,7 @@ func (cpu *CPU) subInstr(rs, rt, rd, shift uint8) error {
 	if check > MAX32 {
 		return errors.New("signed overflow exception")
 	}
-	cpu.Registers[rd] = int32(check)
+	cpu.Registers[rd] =defs.Word(check)
 
 	return nil
 }
@@ -88,7 +89,7 @@ func (cpu *CPU) addInstr(rs, rt, rd, shift uint8) error {
 	if check > MAX32 {
 		return errors.New("signed overflow exception")
 	}
-	cpu.Registers[rd] = int32(check)
+	cpu.Registers[rd] =defs.Word(check)
 
 	return nil
 }

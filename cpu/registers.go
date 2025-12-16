@@ -1,8 +1,12 @@
 package cpu
 
-type RegFile [32]int32
+import (
+	"mips_emulator/defs"
+)
+
+type RegFile [32]defs.Word
 
 type HiLowRegs struct {
-	hi int32
-	lo int32
+	hi defs.Word
+	lo defs.Word
 }
