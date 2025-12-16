@@ -4,6 +4,107 @@ import (
 	"testing"
 )
 
+func TestAnd(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 5
+	cpu.Registers[9] = 10
+
+	// and $t2, $t1, $t0
+	cpu.Instruction = 0x01285024
+	cpu.DecodeInstr()
+
+	if cpu.Registers[10] != 5 & 10 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 5 & 10, cpu.Registers[10])
+	}
+
+}
+
+func TestOr(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 5
+	cpu.Registers[9] = 10
+
+	// or $t2, $t1, $t0
+	cpu.Instruction = 0x01285025
+	cpu.DecodeInstr()
+
+	if cpu.Registers[10] != 5 | 10 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 5 | 10, cpu.Registers[10])
+	}
+
+}
+
+func TestXor(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 5
+	cpu.Registers[9] = 10
+
+	// xor $t2, $t1, $t0
+	cpu.Instruction = 0x01285026
+	cpu.DecodeInstr()
+
+	if cpu.Registers[10] != 5 ^ 10 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 5 ^ 10, cpu.Registers[10])
+	}
+
+}
+
+func TestNor(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 5
+	cpu.Registers[9] = 10
+
+	// or $t2, $t1, $t0
+	cpu.Instruction = 0x01285027
+	cpu.DecodeInstr()
+
+	if cpu.Registers[10] != ^(5 | 10) {
+		t.Errorf("destination register wrong. expected=%d, got=%d", ^(5 | 10), cpu.Registers[10])
+	}
+
+}
+
+func TestMultiplyU(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = -1
+	cpu.Registers[9] = 1
+
+	
+	cpu.Instruction = 0x01285019
+	cpu.DecodeInstr()
+	var signedInt int32 = -1
+	expected := uint32(signedInt)
+
+	hi := int32(uint(expected) & 0xFFFFFFFF00000000 >> 32)
+	lo := int32(uint(expected) & 0x00000000FFFFFFFF)
+
+	if cpu.HiLow.lo != lo {
+		t.Errorf("lo register wrong. expected=%d, got=%d", lo, cpu.HiLow.lo)
+	}
+
+	if cpu.HiLow.hi != hi {
+		t.Errorf("hi register wrong. expected=%d, got=%d", hi, cpu.HiLow.hi)
+	}
+
+}
+
+func TestDivideU(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 3
+	cpu.Registers[9] = 10
+
+	cpu.Instruction = 0x0128501B
+	cpu.DecodeInstr()
+
+	if cpu.HiLow.hi != 1 {
+		t.Errorf("hi register wrong. expected=%d, got=%d", 1, cpu.HiLow.hi)
+	}
+	if cpu.HiLow.lo != 3 {
+		t.Errorf("lo register wrong. expected=%d, got=%d", 3, cpu.HiLow.lo)
+	}
+}
+
+
 func TestAdd(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[8] = 5 // set register $t0
@@ -101,3 +202,4 @@ func TestDivide(t *testing.T) {
 		t.Fatalf("expected divide by zero exception")
 	}
 }
+
