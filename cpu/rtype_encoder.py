@@ -26,9 +26,15 @@ def encode_assembly(asm):
     binary_str = "0b000000"
     instr = components[0]
     registers = components[1].split(",")
-    rd = registers[0].strip()
-    rs = registers[1].strip()
-    rt = registers[2].strip()
+    if instr in ["mult", "div", "multu", "divu"]:
+        rd = "$zero"
+        rs = registers[0].strip()
+        rt = registers[1].strip()
+    else:
+        rd = registers[0].strip()
+        rs = registers[1].strip()
+        rt = registers[2].strip()
+
     rs_bin = get_correct_bits(regs[rs], 5)
     rt_bin = get_correct_bits(regs[rt], 5)
     rd_bin = get_correct_bits(regs[rd], 5)

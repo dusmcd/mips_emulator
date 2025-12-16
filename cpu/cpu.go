@@ -43,6 +43,7 @@ type CPU struct {
 
 func InitCPU() CPU {
 	cpu := CPU{}
+	cpu.HiLow = &HiLowRegs{}
 	var regFile RegFile
 	cpu.Registers = &regFile
 
