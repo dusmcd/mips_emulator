@@ -77,6 +77,12 @@ func InitCPU() CPU {
 	return cpu
 }
 
+func (cpu *CPU) Run() error {
+	// load instruction from memory using PC address
+
+	return nil
+}
+
 
 func (cpu *CPU) decodeRType()  error {
 	funcCode := uint8(cpu.Instruction & 0x0000003F)

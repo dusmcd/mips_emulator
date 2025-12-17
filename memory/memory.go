@@ -30,17 +30,29 @@ func InitMemory() *MainMemory {
 	return memory
 }
 
+func getWord[T *[DATA_SIZE]byte | *[INSTR_SIZE]byte](addr uint32, mem T) defs.Word {
+	var word defs.Word = 0
+	word = word | defs.Word(mem[addr]) // least significant byte
+	word = word | (defs.Word(mem[addr + 1]) << 8)
+	word = word | (defs.Word(mem[addr + 2]) << 16)
+	word = word | (defs.Word(mem[addr + 3]) << 24) // most significant byte
+	
+	return word
+}
+
+func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
+	if int(addr) > INSTR_SIZE - 4 {
+		return 0, errors.New("invalid address")
+	}	
+	return getWord(addr, m.Instruction), nil
+}
+
 func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 	if int(addr) > DATA_SIZE - 4 {
 		return 0, errors.New("invalid address")	
 	}
-	var word defs.Word = 0
-	word = word | defs.Word(m.Data[addr]) // least significant byte
-	word = word | (defs.Word(m.Data[addr + 1]) << 8)
-	word = word | (defs.Word(m.Data[addr + 2]) << 16)
-	word = word | (defs.Word(m.Data[addr + 3]) << 24) // most significant byte
-
-	return word, nil
+	
+	return getWord(addr, m.Data), nil
 }
 
 func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
