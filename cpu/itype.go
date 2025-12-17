@@ -17,3 +17,14 @@ func (cpu CPU) lwInstr(rs, rt uint8, imm int16) error {
 	cpu.Registers[rt] = memoryVal
 	return nil
 }
+
+func (cpu *CPU) swInstr(rs, rt uint8, imm int16) error {
+	baseAddr := cpu.Registers[rs]
+	fullAddr := uint32(baseAddr + defs.Word(imm))
+	err := cpu.MainMemory.StoreWord(fullAddr, cpu.Registers[rt])
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
