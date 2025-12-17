@@ -38,7 +38,7 @@ func (cpu *CPU) divUInstr(rs, rt, rd, shift uint8) error {
 func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
 	op1 := uint32(cpu.Registers[rs])
 	op2 := uint32(cpu.Registers[rt])
-	product := int(op1 * op2)
+	product := op1 * op2
 	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -48,7 +48,7 @@ func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
-	product := int(op1 * op2)
+	product := op1 * op2
 	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -56,40 +56,50 @@ func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
 }
 
 func (cpu *CPU) subUInstr(rs, rt, rd, shift uint8) error {
-	op1 := cpu.Registers[rs]
-	op2 := cpu.Registers[rt]
-	cpu.Registers[rd] = op1 - op2
+	op1 := uint32(cpu.Registers[rs])
+	op2 := uint32(cpu.Registers[rt])
+	cpu.Registers[rd] = defs.Word(op1 - op2)
 
 	return nil
+}
+
+func isOverflow(op1, op2, result defs.Word) bool {
+	if (op1 < 0 && op2 < 0 && result > 0) ||
+		(op1 > 0 && op2 > 0 && result < 0) {
+			return true
+		}
+	return false
 }
 
 func (cpu *CPU) subInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
-	check := int(op1 - op2)
-	if check > MAX32 {
+	check := op1 - op2
+	if isOverflow(op1, op2, check) {
 		return errors.New("signed overflow exception")
 	}
-	cpu.Registers[rd] =defs.Word(check)
+	cpu.Registers[rd] = defs.Word(check)
 
 	return nil
 }
 
 func (cpu *CPU) addUInstr(rs, rt, rd, shift uint8) error {
-		op1 := cpu.Registers[rs]
-		op2 := cpu.Registers[rt]
-		cpu.Registers[rd] = op1 + op2
+		op1 := uint32(cpu.Registers[rs])
+		op2 := uint32(cpu.Registers[rt])
+		cpu.Registers[rd] = defs.Word(op1 + op2)
 		return nil
 }
 
 func (cpu *CPU) addInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
-	check := int(op1 + op2)
-	if check > MAX32 {
+	check := op1 + op2
+
+	if isOverflow(op1, op2, check) {
 		return errors.New("signed overflow exception")
 	}
-	cpu.Registers[rd] =defs.Word(check)
+
+	cpu.Registers[rd] = defs.Word(check)
 
 	return nil
 }
