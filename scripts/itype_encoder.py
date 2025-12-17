@@ -2,7 +2,7 @@ from defs import regs
 from rtype_encoder import get_correct_bits
 
 ops = {
-    "lw": 0x23
+        "lw": 0x23, "sw": 0x2B
 }
 
 def encode(assembly):
