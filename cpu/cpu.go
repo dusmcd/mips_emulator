@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"errors"
+	"mips_emulator/memory"
 )
 
 type InstrType int
@@ -21,8 +22,9 @@ const (
 	SHIFT_BITS = 5
 	FUNC_BITS = 6
 	IMM_BITS = 16
-	MAX32 = 2147483647
 )
+
+var opMap map[uint8]IInstr
 
 
 
@@ -32,6 +34,8 @@ const (
 	32-bit architecture using the MIPS ISA
 	R-type:
 		Op: 6 bits | RS: 5 bits | RT: 5 bits | RD: 5 bits | Shift: 5 bits | Func: 6 bits
+	I-type:
+		Op: 6 bits | RS: 5 bits | RT: bits | Immediate: 16 bits
 */
 
 type CPU struct {
@@ -39,6 +43,7 @@ type CPU struct {
 	Registers *RegFile
 	HiLow *HiLowRegs
 	Instruction uint32 // encoded instruction
+	MainMemory *memory.MainMemory
 }
 
 func InitCPU() CPU {
@@ -46,6 +51,7 @@ func InitCPU() CPU {
 	cpu.HiLow = &HiLowRegs{}
 	var regFile RegFile
 	cpu.Registers = &regFile
+	cpu.MainMemory = memory.InitMemory()
 
 	funcMap = map[uint8]RFunc{
 	0x20: cpu.addInstr,
@@ -60,7 +66,11 @@ func InitCPU() CPU {
 	0x25: cpu.orInstr,
 	0x26: cpu.xorInstr,
 	0x27: cpu.norInstr,
-}
+	}
+
+	opMap = map[uint8]IInstr{
+		0x23: cpu.lwInstr,
+	}
 
 
 	return cpu
@@ -78,6 +88,16 @@ func (cpu *CPU) decodeRType()  error {
 	// execute operation
 	funcMap[funcCode](rs, rt, rd, shift)	
 	return nil
+}
+
+func (cpu *CPU) decodeIType(op uint8) error {
+	rs := uint8(cpu.Instruction & 0x03E00000 >> (WORD_BITS - OP_BITS - RS_BITS))
+	rt := uint8(cpu.Instruction & 0x001F0000 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS))
+	imm := int16(cpu.Instruction & 0x000000FF)
+
+	opMap[op](rs, rt, imm)
+	return nil
+
 }
 
 
@@ -99,7 +119,7 @@ func (cpu *CPU) DecodeInstr() error {
 		return cpu.decodeRType()
 	case IType:
 		// execute i-type instruction
-		break
+		return cpu.decodeIType(op);
 	case JType:
 		// execute j-type instruction
 		break
