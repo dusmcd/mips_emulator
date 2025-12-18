@@ -2,7 +2,7 @@ from defs import regs
 from rtype_encoder import get_correct_bits
 
 ops = {
-        "lw": 0x23, "sw": 0x2B
+        "lw": 0x23, "sw": 0x2B, "addi": 0x08
 }
 
 def encode(assembly):
@@ -26,8 +26,11 @@ def encode(assembly):
         print(f"imm: {imm}")
         pass
     else:
-        # do something
-        pass
+        rs = registers[1].strip()
+        imm = registers[2].strip()
+        print(f"rs: {rs}")
+        print(f"imm: {imm}")
+
 
     rs_bin = get_correct_bits(regs[rs], 5)
     imm_bin = get_correct_bits(int(imm), 16)

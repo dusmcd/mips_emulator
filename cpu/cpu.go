@@ -73,6 +73,7 @@ func InitCPU() CPU {
 	opMap = map[uint8]IInstr{
 		0x23: cpu.lwInstr,
 		0x2B: cpu.swInstr,
+		0x08: cpu.addiInstr,
 	}
 
 

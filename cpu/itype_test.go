@@ -4,13 +4,26 @@ import (
 	"testing"
 )
 
+func TestAddi(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 5; // writing to $t0
+
+	// addi $s0, $t0, 10
+	cpu.Instruction = 0x2110000a
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 15 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 15, cpu.Registers[16])
+	}
+}
+
 func TestLW(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[16] = 0xFF // writing to $s0
 
 	// writing to memory at the specified address
 	fullAddr := uint32(4 + cpu.Registers[16])
-	err := cpu.MainMemory.StoreWord(fullAddr, 100)
+	err := cpu.MainMemory.StoreWord(fullAddr, 1024)
 	if err != nil {
 		t.Fatalf("memory write failed")
 	}
@@ -18,15 +31,15 @@ func TestLW(t *testing.T) {
 	cpu.Instruction = 0x8e080004
 	cpu.DecodeInstr()
 
-	if cpu.Registers[8] != 100 {
-		t.Errorf("destination register wrong. expected=%d, got=%d", 100, cpu.Registers[8])
+	if cpu.Registers[8] != 1024 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 1024, cpu.Registers[8])
 	}
 }
 
 func TestSW(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[16] = 0xFF // writing to $s0
-	cpu.Registers[8] = 100
+	cpu.Registers[8] = 1024
 
 	// sw $t0, 4($s0)
 	cpu.Instruction = 0xae080004
@@ -37,8 +50,8 @@ func TestSW(t *testing.T) {
 		t.Fatalf("memory read failed")
 	}
 
-	if actual != 100 {
-		t.Errorf("value at memory address wrong. expected=%d, got=%d", 100, actual)
+	if actual != 1024 {
+		t.Errorf("value at memory address wrong. expected=%d, got=%d", 1024, actual)
 	}
 }
 	
