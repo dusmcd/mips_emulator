@@ -40,11 +40,26 @@ func getWord[T *[DATA_SIZE]byte | *[INSTR_SIZE]byte](addr uint32, mem T) defs.Wo
 	return word
 }
 
+func storeWord[T *[DATA_SIZE]byte | *[INSTR_SIZE]byte](addr uint32, val defs.Word, mem T) {
+	mem[addr] = byte(val) // least significant byte
+	mem[addr + 1] = byte((val & 0x0000FF00) >> 8)
+	mem[addr + 2] = byte((val & 0x00FF0000) >> 16)
+	mem[addr + 3] = byte((uint(val) & uint(0xFF000000)) >> 24) // most significant byte
+}
+
 func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
 	if int(addr) > INSTR_SIZE - 4 {
 		return 0, errors.New("invalid address")
 	}	
 	return getWord(addr, m.Instruction), nil
+}
+
+func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
+	if int(addr) > INSTR_SIZE - 4 {
+		return errors.New("invalid address")
+	}
+	storeWord(addr, instr, m.Instruction)
+	return nil
 }
 
 func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
@@ -59,10 +74,7 @@ func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
 	if int(addr) > DATA_SIZE - 4 {
 		return errors.New("invalid address")
 	}
-	m.Data[addr] = byte(val) // least significant byte
-	m.Data[addr + 1] = byte((val & 0x0000FF00) >> 8)
-	m.Data[addr + 2] = byte((val & 0x00FF0000) >> 16)
-	m.Data[addr + 3] = byte((uint(val) & uint(0xFF000000)) >> 24) // most significant byte
 
+	storeWord(addr, val, m.Data)
 	return nil
 }

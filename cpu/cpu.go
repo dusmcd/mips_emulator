@@ -1,8 +1,10 @@
 package cpu
 
 import (
+	"fmt"
 	"errors"
 	"mips_emulator/memory"
+	"log"
 )
 
 type InstrType int
@@ -77,8 +79,25 @@ func InitCPU() CPU {
 	return cpu
 }
 
-func (cpu *CPU) Run() error {
+func (cpu *CPU) Run(numInstructions int, initialAddr uint32) error {
 	// load instruction from memory using PC address
+	cpu.PC = initialAddr
+	for range numInstructions {
+		instruction, err := cpu.MainMemory.FetchInstruction(cpu.PC)
+		if err != nil {
+			log.Fatal(err.Error())
+			return err
+		}
+
+		cpu.Instruction = uint32(instruction)
+		cpu.PC += 4
+		err  = cpu.DecodeInstr()
+		if err != nil {
+			log.Fatal(err.Error())
+			return err
+		}
+		fmt.Printf("Instruction completed: 0x%X\n", instruction)
+	}
 
 	return nil
 }

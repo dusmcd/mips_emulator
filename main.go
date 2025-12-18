@@ -9,11 +9,16 @@ func main() {
 
 	fmt.Printf("This is a MIPS Emulator\n")
 	cpu := cpu.InitCPU()
-	cpu.Instruction = 0x00000020
-	cpu.DecodeInstr()
+	initialAddr := uint32(0x01)
+	numInstructions := 2
+	cpu.MainMemory.LoadInstruction(initialAddr, 0x01285020)
+	cpu.MainMemory.LoadInstruction(initialAddr + 4, 0x01285022)
+	cpu.Run(numInstructions, initialAddr)
 
-	for _, val := range *cpu.Registers {
-		fmt.Printf("%d ", val)
+	fmt.Println("Registers")
+	fmt.Println("=========")
+	for i, val := range *cpu.Registers {
+		fmt.Printf("%d:\t%d\n", i, val)	
 	}
-	fmt.Printf("\n")
+
 }
