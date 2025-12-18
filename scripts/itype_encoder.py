@@ -22,14 +22,9 @@ def encode(assembly):
         addr = registers[1].strip()
         (imm, rs) = addr.split("(")
         rs = rs.rstrip(")")
-        print(f"rs: {rs}")
-        print(f"imm: {imm}")
-        pass
     else:
         rs = registers[1].strip()
         imm = registers[2].strip()
-        print(f"rs: {rs}")
-        print(f"imm: {imm}")
 
 
     rs_bin = get_correct_bits(regs[rs], 5)
