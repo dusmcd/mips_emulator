@@ -9,6 +9,30 @@ type RFunc func(rs, rt, rd, shift uint8) error
 
 var funcMap map[uint8]RFunc 
 
+func (cpu *CPU) sllInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rt]
+	cpu.Registers[rd] = op1 << shift
+	return nil
+}
+
+func (cpu *CPU) srlInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rt]
+
+	// casting to unsigned so that shift does *not* sign-extend
+	result := uint32(op1) >> shift
+	cpu.Registers[rd] = defs.Word(result)
+
+	return nil
+}
+
+func (cpu *CPU) sraInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rt]
+
+	// this shift will sign-extend because op1 is a signed integer
+	cpu.Registers[rd] = op1 >> shift
+	return nil
+}
+
 func (cpu *CPU) divInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]

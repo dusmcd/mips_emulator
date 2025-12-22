@@ -56,18 +56,21 @@ func InitCPU() CPU {
 	cpu.MainMemory = memory.InitMemory()
 
 	funcMap = map[uint8]RFunc{
-	0x20: cpu.addInstr,
-	0x22: cpu.subInstr,
-	0x21: cpu.addUInstr,
-	0x23: cpu.subUInstr,
-	0x18: cpu.multInstr,
-	0x19: cpu.multUInstr,
-	0x1A: cpu.divInstr,
-	0x1B: cpu.divUInstr,
-	0x24: cpu.andInstr,
-	0x25: cpu.orInstr,
-	0x26: cpu.xorInstr,
-	0x27: cpu.norInstr,
+		0x20: cpu.addInstr,
+		0x22: cpu.subInstr,
+		0x21: cpu.addUInstr,
+		0x23: cpu.subUInstr,
+		0x18: cpu.multInstr,
+		0x19: cpu.multUInstr,
+		0x1A: cpu.divInstr,
+		0x1B: cpu.divUInstr,
+		0x24: cpu.andInstr,
+		0x25: cpu.orInstr,
+		0x26: cpu.xorInstr,
+		0x27: cpu.norInstr,
+		0x00: cpu.sllInstr,
+		0x02: cpu.srlInstr,
+		0x03: cpu.sraInstr,
 	}
 
 	opMap = map[uint8]IInstr{

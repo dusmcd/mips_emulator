@@ -34,11 +34,14 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) (int, e
 func main() {
 
 	fmt.Printf("This is a MIPS Emulator\n")
+	if (len(os.Args) < 2) {
+		log.Fatalf("example usage: mips_em <binary file>")
+	}
 	cpu := cpu.InitCPU()
 	initialAddr := uint32(0x01)
-	numInstructions, err := ReadInstructions("scripts/bin", initialAddr, &cpu)
+	numInstructions, err := ReadInstructions(os.Args[1], initialAddr, &cpu)
 	if err != nil {
-		log.Fatalf("fatal error")
+		log.Fatalf("error reading binary file")
 	}
 
 	cpu.Run(numInstructions, initialAddr)
