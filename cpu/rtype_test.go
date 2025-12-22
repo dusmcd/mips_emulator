@@ -123,15 +123,22 @@ func TestAdd(t *testing.T) {
 func TestSubtract(t *testing.T) {
 	cpu := InitCPU()
 
-	cpu.Registers[8] = 5 // set register $t0
-	cpu.Registers[9] = 10 // set register $t1
+	cpu.Registers[8] = 300 // set register $t0
+	cpu.Registers[9] = 100 // set register $t1
 
 	// sub $t2, $t1, $t0
 	cpu.Instruction = 0x01285022
 	cpu.DecodeInstr()
 	
-	if cpu.Registers[10] != 5 {
-		t.Errorf("destination register wrong. expected=%d, got=%d", 5, cpu.Registers[10])
+	if cpu.Registers[10] != -200 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", -200, cpu.Registers[10])
+	}
+
+	cpu.Registers[8] = 100 // set register $t0
+	cpu.Registers[9] = 300 // set register $t1
+	cpu.DecodeInstr()
+	if cpu.Registers[10] != 200 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 200, cpu.Registers[10])
 	}
 
 }

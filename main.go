@@ -24,8 +24,8 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) (int, e
 		instructions = append(instructions, instr)
 	}
 
-	for _, instr := range instructions {
-		cpu.MainMemory.LoadInstruction(initialAddr, defs.Word(instr))
+	for i, instr := range instructions {
+		cpu.MainMemory.LoadInstruction(initialAddr + uint32(i * 4), defs.Word(instr))
 	}
 
 	return len(instructions), nil

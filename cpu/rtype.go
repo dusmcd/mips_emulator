@@ -75,7 +75,7 @@ func (cpu *CPU) subInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
 	check := op1 - op2
-	if isOverflow(op1, op2, check) {
+	if (op2 < 0 && op1 > 0 && check < 0) {
 		return errors.New("signed overflow exception")
 	}
 	cpu.Registers[rd] = defs.Word(check)

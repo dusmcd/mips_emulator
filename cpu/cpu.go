@@ -120,7 +120,7 @@ func (cpu *CPU) decodeRType()  error {
 func (cpu *CPU) decodeIType(op uint8) error {
 	rs := uint8(cpu.Instruction & 0x03E00000 >> (WORD_BITS - OP_BITS - RS_BITS))
 	rt := uint8(cpu.Instruction & 0x001F0000 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS))
-	imm := int16(cpu.Instruction & 0x000000FF)
+	imm := int16(cpu.Instruction & 0x0000FFFF)
 
 	opMap[op](rs, rt, imm)
 	return nil

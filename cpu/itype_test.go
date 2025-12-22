@@ -8,12 +8,12 @@ func TestAddi(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[8] = 5; // writing to $t0
 
-	// addi $s0, $t0, 10
-	cpu.Instruction = 0x2110000a
+	// addi $s0, $t0, 4095
+	cpu.Instruction = 0x21100FFF
 	cpu.DecodeInstr()
 
-	if cpu.Registers[16] != 15 {
-		t.Errorf("destination register wrong. expected=%d, got=%d", 15, cpu.Registers[16])
+	if cpu.Registers[16] != 4095+5 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 4095+5, cpu.Registers[16])
 	}
 }
 
