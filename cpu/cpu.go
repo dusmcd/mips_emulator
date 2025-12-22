@@ -107,7 +107,7 @@ func (cpu *CPU) Run(numInstructions int, initialAddr uint32) error {
 }
 
 
-func (cpu *CPU) decodeRType()  error {
+func (cpu *CPU) decodeRType() error {
 	funcCode := uint8(cpu.Instruction & 0x0000003F)
 	// get registers
 	rs := uint8(cpu.Instruction & 0x03E00000 >> (WORD_BITS - OP_BITS - RS_BITS))
@@ -116,8 +116,7 @@ func (cpu *CPU) decodeRType()  error {
 	shift := uint8(cpu.Instruction & 0x000007C0 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS - RD_BITS - SHIFT_BITS))
 
 	// execute operation
-	funcMap[funcCode](rs, rt, rd, shift)	
-	return nil
+	return funcMap[funcCode](rs, rt, rd, shift)	
 }
 
 func (cpu *CPU) decodeIType(op uint8) error {
@@ -125,14 +124,15 @@ func (cpu *CPU) decodeIType(op uint8) error {
 	rt := uint8(cpu.Instruction & 0x001F0000 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS))
 	imm := int16(cpu.Instruction & 0x0000FFFF)
 
-	opMap[op](rs, rt, imm)
-	return nil
-
+	return opMap[op](rs, rt, imm)
 }
 
 
 func (cpu *CPU) DecodeInstr() error {
-	// need to look up op code in static memory
+	if cpu.Instruction == 0 {
+		return errors.New("null machine code")
+	}
+
 	var instrType InstrType
 	op := uint8(cpu.Instruction & 0xFC000000 >> (WORD_BITS - OP_BITS))
 	if op == 0 {

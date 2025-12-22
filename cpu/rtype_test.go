@@ -206,7 +206,7 @@ func TestDivide(t *testing.T) {
 
 	cpu.Registers[8] = 0
 	err := cpu.DecodeInstr()
-	if err != nil {
+	if err == nil {
 		t.Fatalf("expected divide by zero exception")
 	}
 }
