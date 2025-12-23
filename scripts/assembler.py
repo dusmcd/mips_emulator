@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from rtype_encoder import encode_assembly as encode_rtype
 from itype_encoder import encode as encode_itype
 import os

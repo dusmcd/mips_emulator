@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from defs import regs
 from rtype_encoder import get_correct_bits
 
