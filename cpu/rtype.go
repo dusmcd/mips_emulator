@@ -9,6 +9,15 @@ type RFunc func(rs, rt, rd, shift uint8) error
 
 var funcMap map[uint8]RFunc 
 
+func (cpu *CPU) syscall(rs, rt, rd, shift uint8) error {
+	// switch on value in $v0 register
+	switch(cpu.Registers[2]) {
+	case 10:
+		cpu.Exit = true
+	}
+	return nil
+}
+
 func (cpu *CPU) sllInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rt]
 	cpu.Registers[rd] = op1 << shift

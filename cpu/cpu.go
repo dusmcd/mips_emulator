@@ -24,6 +24,7 @@ const (
 	SHIFT_BITS = 5
 	FUNC_BITS = 6
 	IMM_BITS = 16
+	WORD_BYTES = 4
 )
 
 var opMap map[uint8]IInstr
@@ -46,10 +47,12 @@ type CPU struct {
 	HiLow *HiLowRegs
 	Instruction uint32 // encoded instruction
 	MainMemory *memory.MainMemory
+	Exit bool
 }
 
 func InitCPU() CPU {
 	cpu := CPU{}
+	cpu.Exit = false
 	cpu.HiLow = &HiLowRegs{}
 	var regFile RegFile
 	cpu.Registers = &regFile
@@ -71,22 +74,24 @@ func InitCPU() CPU {
 		0x00: cpu.sllInstr,
 		0x02: cpu.srlInstr,
 		0x03: cpu.sraInstr,
+		0x0C: cpu.syscall,
 	}
 
 	opMap = map[uint8]IInstr{
 		0x23: cpu.lwInstr,
 		0x2B: cpu.swInstr,
 		0x08: cpu.addiInstr,
+		0x04: cpu.beqInstr,
 	}
 
 
 	return cpu
 }
 
-func (cpu *CPU) Run(numInstructions int, initialAddr uint32) error {
+func (cpu *CPU) Run(initialAddr uint32) error {
 	// load instruction from memory using PC address
 	cpu.PC = initialAddr
-	for range numInstructions {
+	for {
 		instruction, err := cpu.MainMemory.FetchInstruction(cpu.PC)
 		if err != nil {
 			log.Fatal(err.Error())
@@ -94,13 +99,16 @@ func (cpu *CPU) Run(numInstructions int, initialAddr uint32) error {
 		}
 
 		cpu.Instruction = uint32(instruction)
-		cpu.PC += 4
-		err  = cpu.DecodeInstr()
+		cpu.PC += WORD_BYTES 
+		err = cpu.DecodeInstr()
 		if err != nil {
 			log.Fatal(err.Error())
 			return err
 		}
 		fmt.Printf("Instruction completed: 0x%X\n", instruction)
+		if cpu.Exit {
+			break
+		}
 	}
 
 	return nil

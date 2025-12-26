@@ -3,7 +3,7 @@ from defs import regs
 from rtype_encoder import get_correct_bits
 
 ops = {
-        "lw": 0x23, "sw": 0x2B, "addi": 0x08
+        "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04
 }
 
 def encode(assembly):
@@ -23,6 +23,10 @@ def encode(assembly):
         addr = registers[1].strip()
         (imm, rs) = addr.split("(")
         rs = rs.rstrip(")")
+    elif instr in ["beq"]:
+        # imm = label, will need to calculate
+        # PC offset
+        pass
     else:
         rs = registers[1].strip()
         imm = registers[2].strip()

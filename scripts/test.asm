@@ -1,4 +1,8 @@
-addi $s0, $zero, 100
-addi $s1, $zero, 300
-add $s2, $s0, $s1
-sub $s3, $s0, $s1
+addi $s0, $zero, 10
+Loop: beq $t0, $s0, Done
+addi $t1, $t1, 2
+addi $t0, $t0, 1
+j Loop
+
+Done: addi $v0, $zero, 10 # Exit program
+syscall

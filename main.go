@@ -8,10 +8,10 @@ import (
 	"log"
 )
 
-func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) (int, error) {
+func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	instructions := []uint32{}
@@ -28,7 +28,7 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) (int, e
 		cpu.MainMemory.LoadInstruction(initialAddr + uint32(i * 4), defs.Word(instr))
 	}
 
-	return len(instructions), nil
+	return nil
 }
 
 func main() {
@@ -39,12 +39,12 @@ func main() {
 	}
 	cpu := cpu.InitCPU()
 	initialAddr := uint32(0x01)
-	numInstructions, err := ReadInstructions(os.Args[1], initialAddr, &cpu)
+	err := ReadInstructions(os.Args[1], initialAddr, &cpu)
 	if err != nil {
 		log.Fatalf("error reading binary file")
 	}
 
-	cpu.Run(numInstructions, initialAddr)
+	cpu.Run(initialAddr)
 
 	fmt.Println("Registers")
 	fmt.Println("=========")

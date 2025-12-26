@@ -7,7 +7,18 @@ import (
 
 type IInstr func(rs, rt uint8, imm int16) error
 
-func (cpu CPU) lwInstr(rs, rt uint8, imm int16) error {
+func (cpu *CPU) beqInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	if op1 == op2 {
+		newPC := defs.Word(cpu.PC) + defs.Word(imm << 2)
+		cpu.PC = uint32(newPC)
+	}
+
+	return nil
+}
+
+func (cpu *CPU) lwInstr(rs, rt uint8, imm int16) error {
 	baseAddr := cpu.Registers[rs]
 	fullAddr := uint32(baseAddr + defs.Word(imm))
 	memoryVal, err := cpu.MainMemory.LoadWord(fullAddr)
