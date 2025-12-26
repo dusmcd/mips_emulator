@@ -6,14 +6,13 @@ ops = {
         "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04
 }
 
-def encode(assembly):
+def encode(assembly, current_line=0, label_map=None):
     components = assembly.split(maxsplit=1)
     instr = components[0]
     registers = components[1].split(",")
     rt = registers[0].strip() # destination address
 
     op_bin = get_correct_bits(ops[instr], 6)
-    rt_bin = get_correct_bits(regs[rt], 5)
     rs = None
     imm = None
     
@@ -26,13 +25,19 @@ def encode(assembly):
     elif instr in ["beq"]:
         # imm = label, will need to calculate
         # PC offset
-        pass
+        rs = registers[0].strip()
+        rt = registers[1].strip()
+        label = registers[2].rstrip(": ")
+        label_line = label_map[label.strip()]
+        imm = label_line - (current_line + 1)   
     else:
+        # need to account for PC being on next instruction
         rs = registers[1].strip()
         imm = registers[2].strip()
 
 
     rs_bin = get_correct_bits(regs[rs], 5)
+    rt_bin = get_correct_bits(regs[rt], 5)
     imm_bin = get_correct_bits(int(imm), 16)
 
     binary_str = f"0b{op_bin}{rs_bin}{rt_bin}{imm_bin}"

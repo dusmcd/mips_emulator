@@ -9,12 +9,22 @@ types = {
 
 # checks whether the first word in the instruction
 # is a label or an instruction
+
+def get_labels(lines):
+    label_addrs = {}
+    for i, line in enumerate(lines):
+        words = line.split()
+        first_word = words[0].strip()
+        if first_word[-1] == ":":
+            label_addrs[first_word.rstrip(": ")] = i + 1 if len(words) == 1 else i
+    return label_addrs
+
 def get_instr_text(line):
     words = line.split()
     first_word = words[0].strip()
     if first_word[-1] == ":":
-        return words[1], False
-    return first_word, True
+        return words[1], first_word 
+    return first_word, None 
 
 def main():
     if os.path.exists("bin"):
@@ -24,20 +34,14 @@ def main():
         assembly = file.read()
 
     with open("bin", "wb") as file:
-        label_addrs = {}
-        lines = filter(lambda line: len(line) > 0, assembly.split("\n"))
+        lines = list(filter(lambda line: len(line) > 0, assembly.split("\n")))
+        label_addrs = get_labels(lines)
         for i, line in enumerate(lines):
             instruction = None
-
-            (instr_text, is_instr) = get_instr_text(line)
-            if not is_instr:
-                label = line.split(maxsplit=1)[0].rstrip(": ")
-                label_addrs[label] = i
-                line = line.lstrip(f"{label}:")
-
+            (instr_text, label) = get_instr_text(line)
             print(f"assembly instruction: {instr_text}")
             if types[instr_text] == 1:
-                instruction = encode_itype(line)
+                instruction = encode_itype(line.lstrip(f"{label}:"), i, label_addrs)
             else:
                 instruction = encode_rtype(line)
 
