@@ -32,9 +32,10 @@ def encode(assembly, current_line=0, label_map=None):
         rt = registers[1].strip()
         label = registers[2].rstrip(": ")
         label_line = label_map[label.strip()]
+
+        # need to account for PC being on next instruction
         imm = label_line - (current_line + 1)   
     else:
-        # need to account for PC being on next instruction
         rs = registers[1].strip()
         imm = registers[2].strip()
 
