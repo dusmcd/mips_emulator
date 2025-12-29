@@ -20,6 +20,9 @@ func (cpu *CPU) syscall(rs, rt, rd, shift uint8) error {
 
 func (cpu *CPU) sllInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rt]
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
 	cpu.Registers[rd] = op1 << shift
 	return nil
 }
@@ -29,6 +32,10 @@ func (cpu *CPU) srlInstr(rs, rt, rd, shift uint8) error {
 
 	// casting to unsigned so that shift does *not* sign-extend
 	result := uint32(op1) >> shift
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = defs.Word(result)
 
 	return nil
@@ -36,6 +43,9 @@ func (cpu *CPU) srlInstr(rs, rt, rd, shift uint8) error {
 
 func (cpu *CPU) sraInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rt]
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
 
 	// this shift will sign-extend because op1 is a signed integer
 	cpu.Registers[rd] = op1 >> shift
@@ -91,6 +101,11 @@ func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) subUInstr(rs, rt, rd, shift uint8) error {
 	op1 := uint32(cpu.Registers[rs])
 	op2 := uint32(cpu.Registers[rt])
+	
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = defs.Word(op1 - op2)
 
 	return nil
@@ -111,6 +126,10 @@ func (cpu *CPU) subInstr(rs, rt, rd, shift uint8) error {
 	if (op2 < 0 && op1 > 0 && check < 0) {
 		return errors.New("signed overflow exception")
 	}
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = defs.Word(check)
 
 	return nil
@@ -119,6 +138,10 @@ func (cpu *CPU) subInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) addUInstr(rs, rt, rd, shift uint8) error {
 		op1 := uint32(cpu.Registers[rs])
 		op2 := uint32(cpu.Registers[rt])
+		if rd == 0 {
+			return errors.New("cannot write to $zero register")
+		}
+
 		cpu.Registers[rd] = defs.Word(op1 + op2)
 		return nil
 }
@@ -131,6 +154,10 @@ func (cpu *CPU) addInstr(rs, rt, rd, shift uint8) error {
 	if isOverflow(op1, op2, check) {
 		return errors.New("signed overflow exception")
 	}
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 
 	cpu.Registers[rd] = defs.Word(check)
 
@@ -140,6 +167,10 @@ func (cpu *CPU) addInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) andInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = op1 & op2
 
 	return nil
@@ -148,6 +179,10 @@ func (cpu *CPU) andInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) orInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = op1 | op2
 
 	return nil
@@ -156,6 +191,10 @@ func (cpu *CPU) orInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) xorInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = op1 ^ op2
 
 	return nil
@@ -164,6 +203,10 @@ func (cpu *CPU) xorInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) norInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rd] = ^(op1 | op2)
 
 	return nil

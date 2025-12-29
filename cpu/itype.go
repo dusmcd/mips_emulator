@@ -26,6 +26,10 @@ func (cpu *CPU) lwInstr(rs, rt uint8, imm int16) error {
 		return err
 	}
 
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
 	cpu.Registers[rt] = memoryVal
 	return nil
 }
@@ -46,6 +50,10 @@ func (cpu *CPU) addiInstr(rs, rt uint8, imm int16) error {
 	check := op1 + defs.Word(imm)
 	if isOverflow(op1, defs.Word(imm), check) {
 		return errors.New("signed overflow exception")
+	}
+
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
 	}
 
 	cpu.Registers[rt] = check
