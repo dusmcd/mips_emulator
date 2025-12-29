@@ -87,6 +87,8 @@ func InitCPU() *CPU {
 		0x06: cpu.blezInstr,
 		0x07: cpu.bgtzInstr,
 		0x0C: cpu.andiInstr, // need to write tests for
+		0x0D: cpu.oriInstr, // need to write tests for
+		0x0E: cpu.xoriInstr, // need to write tests for
 	}
 
 

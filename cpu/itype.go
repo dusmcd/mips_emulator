@@ -7,6 +7,28 @@ import (
 
 type IInstr func(rs, rt uint8, imm int16) error
 
+func (cpu *CPU) oriInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	cpu.Registers[rt] = op1 | defs.Word(imm)
+	return nil
+}
+
+func (cpu *CPU) xoriInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	cpu.Registers[rt] = op1 ^ defs.Word(imm)
+	return nil
+}
+
 func (cpu *CPU) bgtzInstr(rs, rt uint8, imm int16) error {
 	op1 := cpu.Registers[rs]
 
