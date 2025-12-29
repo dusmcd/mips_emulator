@@ -7,6 +7,40 @@ import (
 
 type IInstr func(rs, rt uint8, imm int16) error
 
+func (cpu *CPU) bgtzInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+
+	if op1 > 0 {
+		newPC := defs.Word(cpu.PC) + defs.Word(imm << 2)
+		cpu.PC = uint32(newPC)
+	}
+
+	return nil
+}
+
+
+func (cpu *CPU) blezInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+
+	if op1 <= 0 {
+		newPC := defs.Word(cpu.PC) + defs.Word(imm << 2)
+		cpu.PC = uint32(newPC)
+	}
+
+	return nil
+}
+
+func (cpu *CPU) bneInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	if op1 != op2 {
+		newPC := defs.Word(cpu.PC) + defs.Word(imm << 2)
+		cpu.PC = uint32(newPC)
+	}
+
+	return nil
+}
+
 func (cpu *CPU) beqInstr(rs, rt uint8, imm int16) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
@@ -42,6 +76,29 @@ func (cpu *CPU) swInstr(rs, rt uint8, imm int16) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (cpu *CPU) andiInstr(rs, rt uint8, imm int16) error {
+	op1 := cpu.Registers[rs]
+
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+	cpu.Registers[rt] = op1 & defs.Word(imm)
+
+	return nil
+}
+
+func (cpu *CPU) addiuInstr(rs, rt uint8, imm int16) error {
+	op1 := uint32(cpu.Registers[rs])
+	check := op1 + uint32(imm)
+
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	cpu.Registers[rt] = defs.Word(check)
 	return nil
 }
 

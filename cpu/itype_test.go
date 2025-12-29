@@ -4,6 +4,80 @@ import (
 	"testing"
 )
 
+func TestBne(t *testing.T) {
+	cpu := InitCPU()
+	cpu.PC = 0x04
+	cpu.Registers[16] = 20 // setting $s0
+	cpu.Registers[8] = 10 // setting $t0
+
+	// bne $s0, $t0, done
+	cpu.Instruction = 0x1608000e
+	cpu.DecodeInstr()
+	var targetPC uint32 = (0xe << 2) + 0x04
+
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+
+	cpu.Registers[16] = 10 // setting $s0
+	cpu.Registers[8] = 10 // setting $t0
+
+	cpu.DecodeInstr()
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+}
+
+func TestBgtz(t *testing.T) {
+	cpu := InitCPU()
+	cpu.PC = 0x04
+	cpu.Registers[16] = 10 // setting $s0
+
+	// bgtz $s0, done
+	cpu.Instruction = 0x1e00000e
+	cpu.DecodeInstr()
+
+	var targetPC uint32 = (0xe << 2) + 0x04
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+
+	cpu.Registers[16] = 0 // setting $s0
+	cpu.DecodeInstr()
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+
+}
+
+func TestBlez(t *testing.T) {
+	cpu := InitCPU()
+	cpu.PC = 0x04
+	cpu.Registers[16] = 0 // setting $s0
+
+	// blez $s0, done
+	cpu.Instruction = 0x1a00000e
+	cpu.DecodeInstr()
+
+	var targetPC uint32 = (0xe << 2) + 0x04
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+
+	cpu.Registers[16] = -1024 // setting $s0
+	targetPC += (0xe << 2)
+	cpu.DecodeInstr()
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+
+	cpu.Registers[16] = 1024 // setting $s0
+	cpu.DecodeInstr()
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+
+}
 
 func TestBeq(t *testing.T) {
 	cpu := InitCPU()

@@ -6,7 +6,8 @@ CURRENT_LINE=10
 LABEL_MAP = {"done": 25}
 
 ops = {
-        "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04
+        "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04,
+        "bne": 0x05, "blez": 0x06, "bgtz": 0x07
 }
 
 def encode(assembly, current_line=0, label_map=None):
@@ -25,7 +26,7 @@ def encode(assembly, current_line=0, label_map=None):
         addr = registers[1].strip()
         (imm, rs) = addr.split("(")
         rs = rs.rstrip(")")
-    elif instr in ["beq"]:
+    elif instr in ["beq", "bne"]:
         # imm = label, will need to calculate
         # PC offset
         rs = registers[0].strip()
@@ -35,6 +36,13 @@ def encode(assembly, current_line=0, label_map=None):
 
         # need to account for PC being on next instruction
         imm = label_line - (current_line + 1)   
+    elif instr in ["blez", "bgtz"]:
+        rt = "$zero"
+        rs = registers[0].strip()
+        label = registers[1].strip()
+        label_line = label_map[label]
+
+        imm = label_line - (current_line + 1)
     else:
         rs = registers[1].strip()
         imm = registers[2].strip()
