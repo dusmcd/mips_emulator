@@ -5,7 +5,7 @@ funcs = {
     "add": 0x20, "addu": 0x21, "sub": 0x22, "subu": 0x23,
     "mult": 0x18, "multu": 0x19, "div": 0x1A, "divu": 0x1B,
     "and": 0x24, "or": 0x25, "xor": 0x26, "nor": 0x27,
-    "sll": 0x0, "srl": 0x02, "sra": 0x03
+    "sll": 0x0, "srl": 0x02, "sra": 0x03, "syscall": 0x0C
 }
 
 def get_correct_bits(num, bits):
@@ -15,6 +15,8 @@ def get_correct_bits(num, bits):
 
 
 def encode_assembly(asm):
+    if asm.strip() == "syscall":
+        return "0x0000000C"
     components = asm.split(maxsplit=1)
     binary_str = "0b000000"
     instr = components[0]

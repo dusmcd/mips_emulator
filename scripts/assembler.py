@@ -6,7 +6,7 @@ import os
 
 types = {
         "addi": 1, "add": 0, "sub": 0, "beq": 1,
-        "j": 2, "jal": 2
+        "j": 2, "jal": 2, "syscall": 0
 }
 
 # checks whether the first word in the instruction

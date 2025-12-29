@@ -4,7 +4,7 @@ def encode(assembly, label_map):
     components = assembly.split()
     instr = components[0].strip()
     label = components[1].strip()
-    target_addr = label_map[label]
+    target_addr = (label_map[label] + 1) * 4
     binary_str = "0b"
     if instr == "j":
         binary_str += "000010"

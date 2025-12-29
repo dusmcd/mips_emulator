@@ -15,12 +15,13 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) error {
 	}
 
 	instructions := []uint32{}
+	fmt.Printf("size of data %dB\n", len(data))
 	for i := 0; i < len(data); i += 4{
 		var instr uint32 = 0
 		instr = instr | uint32(data[i]) // least significant byte
 		instr = instr | uint32(data[i + 1]) << 8
 		instr = instr | uint32(data[i + 2]) << 16
-		instr = instr | uint32(data[i + 3]) << 24 // most siginificant byte
+		instr = instr | uint32(data[i + 3]) << 24 // most significant byte
 		instructions = append(instructions, instr)
 	}
 
