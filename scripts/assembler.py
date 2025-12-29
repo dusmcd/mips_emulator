@@ -1,10 +1,12 @@
 #! /usr/bin/env python3
 from rtype_encoder import encode_assembly as encode_rtype
 from itype_encoder import encode as encode_itype
+from jtype_encoder import encode as encode_jtype
 import os
 
 types = {
-        "addi": 1, "add": 0, "sub": 0, "beq": 1
+        "addi": 1, "add": 0, "sub": 0, "beq": 1,
+        "j": 2, "jal": 2
 }
 
 # checks whether the first word in the instruction
@@ -42,8 +44,10 @@ def main():
             print(f"assembly instruction: {instr_text}")
             if types[instr_text] == 1:
                 instruction = encode_itype(line.lstrip(f"{label}:"), i, label_addrs)
+            elif types[instr_text] == 0:
+                instruction = encode_rtype(line.lstrip(f"{label}:"))
             else:
-                instruction = encode_rtype(line)
+                instruction = encode_jtype(line.lstrip(f"{label}:"), label_addrs)
 
             
             data = int(instruction, 16).to_bytes(4, byteorder="little", signed=False)

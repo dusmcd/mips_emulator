@@ -135,6 +135,15 @@ func (cpu *CPU) decodeIType(op uint8) error {
 	return opMap[op](rs, rt, imm)
 }
 
+func (cpu *CPU) decodeJType(op uint8) error {
+	addr := uint32(cpu.Instruction & 0x03FFFFFF)
+	switch op {
+	case 0x02:
+		return cpu.jInstr(addr)
+	}
+	return errors.New("Invalid machine code")
+}
+
 
 func (cpu *CPU) DecodeInstr() error {
 	if cpu.Instruction == 0 {
@@ -160,7 +169,7 @@ func (cpu *CPU) DecodeInstr() error {
 		return cpu.decodeIType(op);
 	case JType:
 		// execute j-type instruction
-		break
+		return cpu.decodeJType(op)
 	}
 	return errors.New("Invalid machine code")
 }
