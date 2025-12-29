@@ -4,6 +4,22 @@ import (
 	"testing"
 )
 
+func TestBeq(t *testing.T) {
+	cpu := InitCPU()
+	cpu.PC = 0x04
+	cpu.Registers[16] = 10 // setting $s0
+	cpu.Registers[8] = 10 // setting $t0
+
+	// beq $s0, $t0, done
+	cpu.Instruction = 0x1208000e
+	cpu.DecodeInstr()
+	var targetPC uint32 = (0xe << 2) + 0x04
+
+	if cpu.PC != targetPC {
+		t.Errorf("PC wrong. expected=%d, got=%d", targetPC, cpu.PC)
+	}
+}
+
 func TestAddi(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[8] = 5; // writing to $t0

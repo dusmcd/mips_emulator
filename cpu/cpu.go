@@ -50,8 +50,8 @@ type CPU struct {
 	Exit bool
 }
 
-func InitCPU() CPU {
-	cpu := CPU{}
+func InitCPU() *CPU {
+	cpu := &CPU{}
 	cpu.Exit = false
 	cpu.HiLow = &HiLowRegs{}
 	var regFile RegFile

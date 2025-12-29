@@ -2,6 +2,9 @@
 from defs import regs
 from rtype_encoder import get_correct_bits
 
+CURRENT_LINE=10
+LABEL_MAP = {"done": 25}
+
 ops = {
         "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04
 }
@@ -45,7 +48,7 @@ def encode(assembly, current_line=0, label_map=None):
 
 def main():
     assemblyInstruction = input("Assembly Instruction: ")
-    machineCode = encode(assemblyInstruction)
+    machineCode = encode(assemblyInstruction, CURRENT_LINE, LABEL_MAP)
     print(f"Machine code hex: {machineCode}")
 
 if __name__ == "__main__":

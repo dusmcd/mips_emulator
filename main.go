@@ -38,8 +38,8 @@ func main() {
 		log.Fatalf("example usage: mips_em <binary file>")
 	}
 	cpu := cpu.InitCPU()
-	initialAddr := uint32(0x01)
-	err := ReadInstructions(os.Args[1], initialAddr, &cpu)
+	initialAddr := uint32(0x04)
+	err := ReadInstructions(os.Args[1], initialAddr, cpu)
 	if err != nil {
 		log.Fatalf("error reading binary file")
 	}
