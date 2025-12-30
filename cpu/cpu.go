@@ -75,22 +75,24 @@ func InitCPU() *CPU {
 		0x02: cpu.srlInstr,
 		0x03: cpu.sraInstr,
 		0x0C: cpu.syscall,
+		0x2A: cpu.sltInstr, 
+		0x2B: cpu.sltuInstr, 
 	}
 
 	opMap = map[uint8]IInstr{
 		0x23: cpu.lwInstr,
 		0x2B: cpu.swInstr,
 		0x08: cpu.addiInstr,
-		0x09: cpu.addiuInstr, // need to write tests for
+		0x09: cpu.addiuInstr, 
 		0x04: cpu.beqInstr,
 		0x05: cpu.bneInstr,
 		0x06: cpu.blezInstr,
 		0x07: cpu.bgtzInstr,
-		0x0C: cpu.andiInstr, // need to write tests for
-		0x0D: cpu.oriInstr, // need to write tests for
-		0x0E: cpu.xoriInstr, // need to write tests for
+		0x0C: cpu.andiInstr, 
+		0x0D: cpu.oriInstr, 
+		0x0E: cpu.xoriInstr,
 	}
-
+	
 
 	return cpu
 }

@@ -7,7 +7,8 @@ LABEL_MAP = {"done": 25}
 
 ops = {
         "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04,
-        "bne": 0x05, "blez": 0x06, "bgtz": 0x07
+        "bne": 0x05, "blez": 0x06, "bgtz": 0x07, "addiu": 0x09,
+        "andi": 0x0C, "ori": 0x0D, "xori": 0x0E
 }
 
 def encode(assembly, current_line=0, label_map=None):

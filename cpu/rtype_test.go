@@ -5,6 +5,49 @@ import (
 	"mips_emulator/defs"
 )
 
+func TestSlt(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 10 // setting $t0
+	cpu.Registers[16] = 5 // setting $s0
+
+	// slt $s1, $s0, $t0
+	cpu.Instruction = 0x0208882a
+	cpu.DecodeInstr()
+
+	if cpu.Registers[17] != 1 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 1, cpu.Registers[17])
+	}
+
+	cpu.Registers[16] = 10
+	cpu.DecodeInstr()
+
+	if cpu.Registers[17] != 0 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 0, cpu.Registers[17])
+	}
+}
+
+func TestSltu(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[8] = 10 // setting $t0
+	cpu.Registers[16] = 5 // setting $s0
+
+	// sltu $s1, $s0, $t0
+	cpu.Instruction = 0x0208882b
+	cpu.DecodeInstr()
+
+	if cpu.Registers[17] != 1 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 1, cpu.Registers[17])
+	}
+
+	cpu.Registers[16] = 10
+	cpu.DecodeInstr()
+
+	if cpu.Registers[17] != 0 {
+		t.Errorf("destination register wrong. expected=%d, got=%d", 0, cpu.Registers[17])
+	}
+}
+
+
 func TestSll(t *testing.T) {
 	cpu := InitCPU()
 	cpu.Registers[8] = 0x00000FFF

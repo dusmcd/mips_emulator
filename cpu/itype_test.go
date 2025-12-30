@@ -2,7 +2,64 @@ package cpu
 
 import (
 	"testing"
+	"mips_emulator/defs"
 )
+
+func TestAddiu(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[16] = 0x000FFFFF // setting $s0
+
+	// addiu $t0, $s0, 1024
+	cpu.Instruction = 0x26080400
+	cpu.DecodeInstr()
+
+	expected := defs.Word(0x000FFFFF + 1024)
+	if cpu.Registers[8] != expected {
+		t.Errorf("destination register wrong. expected=%d, got=%d",expected, cpu.Registers[8])
+	}
+}
+
+func TestAndi(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[16] = 1024 // setting $s0
+
+	// andi $t0, $s0, 512
+	cpu.Instruction = 0x32080200
+	cpu.DecodeInstr()
+
+	expected := defs.Word(1024 & 512)
+	if cpu.Registers[8] != expected {
+		t.Errorf("destination register wrong. expected=%d, got=%d", expected, cpu.Registers[8])
+	}
+}
+
+func TestXori(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[16] = 1024 // setting $s0
+
+	// xori $t0, $s0, 16000
+	cpu.Instruction = 0x3a083e80
+	cpu.DecodeInstr()
+
+	expected := defs.Word(1024 ^ 16000)
+	if cpu.Registers[8] != expected {
+		t.Errorf("destination register wrong. expected=%d, got=%d", expected, cpu.Registers[8])
+	}
+}
+
+func TestOri(t *testing.T) {
+	cpu := InitCPU()
+	cpu.Registers[16] = 1000000 // setting $s0
+
+	// ori $t0, $s0, 10
+	cpu.Instruction = 0x3608000a 
+	cpu.DecodeInstr()
+
+	expected := defs.Word(1000000 | 10)
+	if cpu.Registers[8] != expected {
+		t.Errorf("destination register wrong. expected=%d, got=%d", expected, cpu.Registers[8])
+	}
+}
 
 func TestBne(t *testing.T) {
 	cpu := InitCPU()

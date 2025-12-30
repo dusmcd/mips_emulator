@@ -9,6 +9,39 @@ type RFunc func(rs, rt, rd, shift uint8) error
 
 var funcMap map[uint8]RFunc 
 
+func (cpu *CPU) sltuInstr(rs, rt, rd, shift uint8) error {
+	op1 := uint32(cpu.Registers[rs])
+	op2 := uint32(cpu.Registers[rt])
+
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	if op1 < op2 {
+		cpu.Registers[rd] = 1
+	} else {
+		cpu.Registers[rd] = 0
+	}
+
+	return nil
+}
+
+func (cpu *CPU) sltInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	if op1 < op2 {
+		cpu.Registers[rd] = 1
+	} else {
+		cpu.Registers[rd] = 0
+	}
+	return nil
+}
+
 func (cpu *CPU) syscall(rs, rt, rd, shift uint8) error {
 	// switch on value in $v0 register
 	switch(cpu.Registers[2]) {
