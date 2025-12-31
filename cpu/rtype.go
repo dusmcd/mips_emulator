@@ -5,6 +5,10 @@ import (
 	"mips_emulator/defs"
 )
 
+const (
+	SYS_EXIT = 4001
+)
+
 type RFunc func(rs, rt, rd, shift uint8) error
 
 var funcMap map[uint8]RFunc 
@@ -45,7 +49,7 @@ func (cpu *CPU) sltInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) syscall(rs, rt, rd, shift uint8) error {
 	// switch on value in $v0 register
 	switch(cpu.Registers[2]) {
-	case 10:
+	case SYS_EXIT:
 		cpu.Exit = true
 	}
 	return nil

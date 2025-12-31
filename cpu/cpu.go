@@ -133,7 +133,10 @@ func (cpu *CPU) decodeRType() error {
 	shift := uint8(cpu.Instruction & 0x000007C0 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS - RD_BITS - SHIFT_BITS))
 
 	// execute operation
-	return funcMap[funcCode](rs, rt, rd, shift)	
+	if value, ok := funcMap[funcCode]; ok {
+		return value(rs, rt, rd, shift)
+	}
+	return errors.New("func code not found")
 }
 
 func (cpu *CPU) decodeIType(op uint8) error {
@@ -141,7 +144,11 @@ func (cpu *CPU) decodeIType(op uint8) error {
 	rt := uint8(cpu.Instruction & 0x001F0000 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS))
 	imm := int16(cpu.Instruction & 0x0000FFFF)
 
-	return opMap[op](rs, rt, imm)
+	if value, ok := opMap[op]; ok {
+		return value(rs, rt, imm)
+	}
+
+	return errors.New("op code not found")
 }
 
 func (cpu *CPU) decodeJType(op uint8) error {
@@ -149,6 +156,8 @@ func (cpu *CPU) decodeJType(op uint8) error {
 	switch op {
 	case 0x02:
 		return cpu.jInstr(addr)
+	case 0x03:
+		return cpu.jalInstr(addr)
 	}
 	return errors.New("Invalid machine code")
 }
@@ -156,7 +165,7 @@ func (cpu *CPU) decodeJType(op uint8) error {
 
 func (cpu *CPU) DecodeInstr() error {
 	if cpu.Instruction == 0 {
-		return errors.New("null machine code")
+		return nil // nop
 	}
 
 	var instrType InstrType

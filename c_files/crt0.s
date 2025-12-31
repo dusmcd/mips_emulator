@@ -6,9 +6,9 @@ __start:
   jal main
   nop
 
-  move $a0, $v0
+  addi $a0, $v0, 0
 
-  li $v0, 10
+  addi $v0, $zero, 4001 # exit the program
   syscall
 
   .end __start
