@@ -4,6 +4,9 @@ import (
 	"debug/elf"
 	"fmt"
 	"errors"
+	"encoding/binary"
+	"mips_emulator/memory"
+	"mips_emulator/defs"
 )
 
 const (
@@ -17,26 +20,64 @@ const (
 	MIPS_LE = 10
 )
 
-func ParseFile(path string) error {
+type StartUpData struct {
+	EntryAddr uint32
+	Memory *memory.MainMemory
+}
+
+func ParseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
+	for _, pHeader := range headers {
+		switch(pHeader.Type) {
+		case elf.PT_LOAD:
+			// load into main memory
+			addr := uint32(pHeader.Vaddr)
+			size := pHeader.Filesz
+			buffer := []byte{}
+			bytesRead, err := pHeader.Open().Read(buffer)
+			
+			if err != nil {
+				return err
+			}
+			if bytesRead != int(size) {
+				return errors.New("bytes read does not match given size")
+			}
+
+			// assuming data is word aligned
+			for i := 0; i < len(buffer); i += 4 {
+				word := binary.LittleEndian.Uint32(buffer[i:i+4])
+				memory.StoreWord(addr, defs.Word(word))	
+			}
+		}
+	}	
+	return nil
+}
+
+func ParseFile(path string) (*StartUpData, error) {
 	elfFile, err := elf.Open(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if elfFile.Data != LITTLE_ENDIAN {
-		return errors.New("data format not supported")
+		return nil, errors.New("data format not supported")
 	}
 
 	if elfFile.Class != SIZE_32 {
-		return errors.New("word length not 32 bits")
+		return nil, errors.New("word length not 32 bits")
 	}
 
 	if elfFile.Type != EXEC {
-		return errors.New("must be an executable file")
+		return nil, errors.New("must be an executable file")
 	}
 
 	if elfFile.Machine != MIPS && elfFile.Machine != MIPS_LE {
-		return errors.New("must be a MIPS machine")
+		return nil, errors.New("must be a MIPS machine")
+	}
+	startUpData := StartUpData{}
+	memory := memory.InitMemory()
+	err = ParseProgramHeaders(elfFile.Progs, memory)
+	if err != nil {
+		return nil, err
 	}
 
 	fmt.Println("ELF Metadata")
@@ -47,8 +88,10 @@ func ParseFile(path string) error {
 
 	err = elfFile.Close()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	startUpData.Memory = memory
+	startUpData.EntryAddr = uint32(elfFile.Entry)
+	return &startUpData, nil
 }
