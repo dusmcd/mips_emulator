@@ -50,13 +50,16 @@ type CPU struct {
 	Exit bool
 }
 
-func InitCPU() *CPU {
+func InitCPU(initMemory bool) *CPU {
 	cpu := &CPU{}
 	cpu.Exit = false
 	cpu.HiLow = HiLowRegs{}
 	var regFile RegFile
 	cpu.Registers = regFile
-	cpu.MainMemory = memory.InitMemory()
+
+	if initMemory {
+		cpu.MainMemory = memory.InitMemory()
+	}
 
 	funcMap = map[uint8]RFunc{
 		0x20: cpu.addInstr,
