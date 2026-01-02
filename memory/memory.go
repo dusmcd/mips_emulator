@@ -3,6 +3,7 @@ package memory
 import (
 	"errors"
 	"mips_emulator/defs"
+	"encoding/binary"
 )
 
 const (
@@ -30,13 +31,9 @@ func InitMemory() *MainMemory {
 	return memory
 }
 
-func getWord[T *[DATA_SIZE]byte | *[INSTR_SIZE]byte](addr uint32, mem T) defs.Word {
-	var word defs.Word = 0
-	word = word | defs.Word(mem[addr]) // least significant byte
-	word = word | (defs.Word(mem[addr + 1]) << 8)
-	word = word | (defs.Word(mem[addr + 2]) << 16)
-	word = word | (defs.Word(mem[addr + 3]) << 24) // most significant byte
-	
+func getWord(addr uint32, mem []byte) defs.Word {
+	uData := binary.LittleEndian.Uint32(mem[addr:addr+4])
+	word := defs.Word(uData)
 	return word
 }
 
@@ -51,7 +48,8 @@ func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
 	if int(addr) > INSTR_SIZE - 4 {
 		return 0, errors.New("invalid address")
 	}	
-	return getWord(addr, m.Instruction), nil
+	data := m.Instruction[:]
+	return getWord(addr, data), nil
 }
 
 func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
@@ -67,7 +65,8 @@ func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 		return 0, errors.New("invalid address")	
 	}
 	
-	return getWord(addr, m.Data), nil
+	data := m.Data[:]
+	return getWord(addr, data), nil
 }
 
 func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {

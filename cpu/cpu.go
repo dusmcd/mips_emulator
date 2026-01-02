@@ -43,8 +43,8 @@ var opMap map[uint8]IInstr
 
 type CPU struct {
 	PC uint32 // addr of next instruction
-	Registers *RegFile
-	HiLow *HiLowRegs
+	Registers RegFile
+	HiLow HiLowRegs
 	Instruction uint32 // encoded instruction
 	MainMemory *memory.MainMemory
 	Exit bool
@@ -53,9 +53,9 @@ type CPU struct {
 func InitCPU() *CPU {
 	cpu := &CPU{}
 	cpu.Exit = false
-	cpu.HiLow = &HiLowRegs{}
+	cpu.HiLow = HiLowRegs{}
 	var regFile RegFile
-	cpu.Registers = &regFile
+	cpu.Registers = regFile
 	cpu.MainMemory = memory.InitMemory()
 
 	funcMap = map[uint8]RFunc{

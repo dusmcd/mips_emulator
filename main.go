@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"mips_emulator/cpu"
 	"mips_emulator/defs"
+	"mips_emulator/loader"
+	"encoding/binary"
 	"os"
 	"log"
 )
@@ -17,11 +19,7 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) error {
 	instructions := []uint32{}
 	fmt.Printf("size of data %dB\n", len(data))
 	for i := 0; i < len(data); i += 4{
-		var instr uint32 = 0
-		instr = instr | uint32(data[i]) // least significant byte
-		instr = instr | uint32(data[i + 1]) << 8
-		instr = instr | uint32(data[i + 2]) << 16
-		instr = instr | uint32(data[i + 3]) << 24 // most significant byte
+		var instr uint32 = binary.LittleEndian.Uint32(data[i:i+4])
 		instructions = append(instructions, instr)
 	}
 
@@ -35,22 +33,28 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) error {
 func main() {
 
 	fmt.Printf("This is a MIPS Emulator\n")
+	err := loader.ParseFile("c_files/main")
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+	
 	if (len(os.Args) < 2) {
 		log.Fatalf("example usage: mips_em <binary file>")
 	}
 	cpu := cpu.InitCPU()
 	initialAddr := uint32(0x04)
-	err := ReadInstructions(os.Args[1], initialAddr, cpu)
+	err = ReadInstructions(os.Args[1], initialAddr, cpu)
 	if err != nil {
-		log.Fatalf("error reading binary file")
+		log.Fatalf("error reading binary file: %s", err.Error())
 	}
 
 	cpu.Run(initialAddr)
 
 	fmt.Println("Registers")
 	fmt.Println("=========")
-	for i, val := range *cpu.Registers {
+	for i, val := range cpu.Registers {
 		fmt.Printf("%d:\t%d\n", i, val)	
 	}
+	
 
 }
