@@ -37,11 +37,8 @@ func getWord(addr uint32, mem []byte) defs.Word {
 	return word
 }
 
-func storeWord[T *[DATA_SIZE]byte | *[INSTR_SIZE]byte](addr uint32, val defs.Word, mem T) {
-	mem[addr] = byte(val) // least significant byte
-	mem[addr + 1] = byte((val & 0x0000FF00) >> 8)
-	mem[addr + 2] = byte((val & 0x00FF0000) >> 16)
-	mem[addr + 3] = byte((uint(val) & uint(0xFF000000)) >> 24) // most significant byte
+func storeWord(addr uint32, val defs.Word, mem []byte) {
+	binary.LittleEndian.PutUint32(mem[addr:addr+4], uint32(val))
 }
 
 func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
@@ -56,7 +53,8 @@ func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
 	if int(addr) > INSTR_SIZE - 4 {
 		return errors.New("invalid address")
 	}
-	storeWord(addr, instr, m.Instruction)
+	data := m.Instruction[:]
+	storeWord(addr, instr, data)
 	return nil
 }
 
@@ -74,6 +72,7 @@ func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
 		return errors.New("invalid address")
 	}
 
-	storeWord(addr, val, m.Data)
+	data := m.Data[:]
+	storeWord(addr, val, data)
 	return nil
 }
