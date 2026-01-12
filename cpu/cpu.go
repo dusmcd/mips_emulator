@@ -29,16 +29,14 @@ const (
 
 var opMap map[uint8]IInstr
 
-
-
-
-	
 /**
 	32-bit architecture using the MIPS ISA
 	R-type:
 		Op: 6 bits | RS: 5 bits | RT: 5 bits | RD: 5 bits | Shift: 5 bits | Func: 6 bits
 	I-type:
 		Op: 6 bits | RS: 5 bits | RT: bits | Immediate: 16 bits
+	J-type:
+		Op: 6 bits | Address: 26 bits
 */
 
 type CPU struct {

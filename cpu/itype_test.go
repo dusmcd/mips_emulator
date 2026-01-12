@@ -176,7 +176,7 @@ func TestAddi(t *testing.T) {
 
 func TestLW(t *testing.T) {
 	cpu := InitCPU(true)
-	cpu.Registers[16] = 0xFF // writing to $s0
+	cpu.Registers[16] = 0xFF0 // writing to $s0
 
 	// writing to memory at the specified address
 	fullAddr := uint32(4 + cpu.Registers[16])
@@ -195,7 +195,7 @@ func TestLW(t *testing.T) {
 
 func TestSW(t *testing.T) {
 	cpu := InitCPU(true)
-	cpu.Registers[16] = 0xFF // writing to $s0
+	cpu.Registers[16] = 0xFF0 // writing to $s0
 	cpu.Registers[8] = 1024
 
 	// sw $t0, 4($s0)

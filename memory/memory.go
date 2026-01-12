@@ -58,9 +58,21 @@ func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
 	return nil
 }
 
+func (m *MainMemory) StoreByte(addr uint32, data byte) error {
+	if int(addr) > INSTR_SIZE {
+		return errors.New("invalid address")
+	}
+	m.Data[addr] = data
+	return nil
+}
+
 func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 	if int(addr) > DATA_SIZE - 4 {
 		return 0, errors.New("invalid address")	
+	}
+
+	if int(addr) % 4 != 0 {
+		return 0, errors.New("address must be word-aligned")
 	}
 	
 	data := m.Data[:]
@@ -70,6 +82,10 @@ func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
 	if int(addr) > DATA_SIZE - 4 {
 		return errors.New("invalid address")
+	}
+
+	if int(addr) % 4 != 0 {
+		return errors.New("address must be word-aligned")
 	}
 
 	data := m.Data[:]

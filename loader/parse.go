@@ -2,11 +2,10 @@ package loader
 
 import (
 	"debug/elf"
-	"fmt"
-	"errors"
 	"encoding/binary"
+	"errors"
+	"fmt"
 	"mips_emulator/memory"
-	"mips_emulator/defs"
 )
 
 const (
@@ -23,6 +22,8 @@ const (
 type StartUpData struct {
 	EntryAddr uint32
 	Memory *memory.MainMemory
+	Instructions []uint32
+	GP uint32
 }
 
 func ParseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
@@ -32,7 +33,7 @@ func ParseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
 			// load into main memory
 			addr := uint32(pHeader.Vaddr)
 			size := pHeader.Filesz
-			buffer := []byte{}
+			buffer := make([]byte, size)
 			bytesRead, err := pHeader.Open().Read(buffer)
 			
 			if err != nil {
@@ -42,14 +43,28 @@ func ParseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
 				return errors.New("bytes read does not match given size")
 			}
 
-			// assuming data is word aligned
-			for i := 0; i < len(buffer); i += 4 {
-				word := binary.LittleEndian.Uint32(buffer[i:i+4])
-				memory.StoreWord(addr, defs.Word(word))	
+			for _, data := range buffer {
+				memory.StoreByte(addr, data)
+				addr++
 			}
 		}
 	}	
 	return nil
+}
+
+func getInstructions(textSection *elf.Section) ([]uint32, error) {
+	buffer, err := textSection.Data()
+	if err != nil {
+		return []uint32{}, err
+	}
+	instructions := []uint32{}
+
+	for i := 0; i < len(buffer); i += 4 {
+		instr := binary.LittleEndian.Uint32(buffer[i:i+4])	
+		instructions = append(instructions, instr)
+	} 
+
+	return instructions, nil
 }
 
 func ParseFile(path string) (*StartUpData, error) {
@@ -73,6 +88,7 @@ func ParseFile(path string) (*StartUpData, error) {
 	if elfFile.Machine != MIPS && elfFile.Machine != MIPS_LE {
 		return nil, errors.New("must be a MIPS machine")
 	}
+	
 	startUpData := StartUpData{}
 	memory := memory.InitMemory()
 	err = ParseProgramHeaders(elfFile.Progs, memory)
@@ -80,18 +96,42 @@ func ParseFile(path string) (*StartUpData, error) {
 		return nil, err
 	}
 
+	textSection := elfFile.Section(".text")
+	if textSection == nil {
+		return nil, errors.New("no text section")
+	}
+
+	startUpData.Instructions, err = getInstructions(textSection)
+	if err != nil {
+		return nil, err
+	}
+	
+
 	fmt.Println("ELF Metadata")
 	fmt.Println("============")
 	fmt.Printf("Class: %d\n", elfFile.Class)
 	fmt.Printf("Data: %d\n", elfFile.Data)
 	fmt.Printf("Machine: %d\n", elfFile.Machine)
 
+	/*
+	* symbol table
+	*/
+	symbols, _ := elfFile.Symbols()
+	for _, symbol := range symbols {
+		if symbol.Name == "_gp" {
+			startUpData.GP = uint32(symbol.Value)
+		}
+	}
+
+	
 	err = elfFile.Close()
 	if err != nil {
 		return nil, err
 	}
 
+	
 	startUpData.Memory = memory
 	startUpData.EntryAddr = uint32(elfFile.Entry)
+
 	return &startUpData, nil
 }

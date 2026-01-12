@@ -7,7 +7,6 @@ import (
 	"mips_emulator/loader"
 	"encoding/binary"
 	"os"
-	"log"
 )
 
 func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) error {
@@ -33,14 +32,18 @@ func ReadInstructions(filePath string, initialAddr uint32, cpu *cpu.CPU) error {
 func main() {
 
 	fmt.Printf("This is a MIPS Emulator\n")
+	/*
 	if (len(os.Args) < 2) {
 		log.Fatalf("example usage: mips_em <binary file>")
 	}
+	*/
 
-	startUpData, err := loader.ParseFile("c_files/main")
+	loader.ParseFile("c_files/main")
+	/*
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
+	
 	
 	
 	cpu := cpu.InitCPU(false)
@@ -59,6 +62,6 @@ func main() {
 	for i, val := range cpu.Registers {
 		fmt.Printf("%d:\t%d\n", i, val)	
 	}
-	
+	*/	
 
 }
