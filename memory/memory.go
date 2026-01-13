@@ -45,6 +45,10 @@ func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
 	if int(addr) > INSTR_SIZE - 4 {
 		return 0, errors.New("invalid address")
 	}	
+
+	if addr % 4 != 0 {
+		return 0, errors.New("address must be word-aligned")
+	}
 	data := m.Instruction[:]
 	return getWord(addr, data), nil
 }
@@ -53,6 +57,10 @@ func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
 	if int(addr) > INSTR_SIZE - 4 {
 		return errors.New("invalid address")
 	}
+	if addr % 4 != 0 {
+		return errors.New("address must be word-aligned")
+	}
+
 	data := m.Instruction[:]
 	storeWord(addr, instr, data)
 	return nil

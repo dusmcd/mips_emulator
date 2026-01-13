@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"errors"
 	"mips_emulator/memory"
+	"mips_emulator/defs"
 	"log"
 )
 
@@ -48,16 +49,17 @@ type CPU struct {
 	Exit bool
 }
 
-func InitCPU(initMemory bool) *CPU {
+func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 	cpu := &CPU{}
 	cpu.Exit = false
 	cpu.HiLow = HiLowRegs{}
 	var regFile RegFile
 	cpu.Registers = regFile
+	
+	// load GP (global pointer)
+	cpu.Registers[28] = defs.Word(gp)
 
-	if initMemory {
-		cpu.MainMemory = memory.InitMemory()
-	}
+	cpu.MainMemory = mem
 
 	funcMap = map[uint8]RFunc{
 		0x20: cpu.addInstr,

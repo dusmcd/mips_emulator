@@ -3,10 +3,11 @@ package cpu
 import (
 	"testing"
 	"mips_emulator/defs"
+	"mips_emulator/memory"
 )
 
 func TestAddiu(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[16] = 0x000FFFFF // setting $s0
 
 	// addiu $t0, $s0, 1024
@@ -20,7 +21,7 @@ func TestAddiu(t *testing.T) {
 }
 
 func TestAndi(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[16] = 1024 // setting $s0
 
 	// andi $t0, $s0, 512
@@ -34,7 +35,7 @@ func TestAndi(t *testing.T) {
 }
 
 func TestXori(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[16] = 1024 // setting $s0
 
 	// xori $t0, $s0, 16000
@@ -48,7 +49,7 @@ func TestXori(t *testing.T) {
 }
 
 func TestOri(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[16] = 1000000 // setting $s0
 
 	// ori $t0, $s0, 10
@@ -62,7 +63,7 @@ func TestOri(t *testing.T) {
 }
 
 func TestBne(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.PC = 0x04
 	cpu.Registers[16] = 20 // setting $s0
 	cpu.Registers[8] = 10 // setting $t0
@@ -86,7 +87,7 @@ func TestBne(t *testing.T) {
 }
 
 func TestBgtz(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.PC = 0x04
 	cpu.Registers[16] = 10 // setting $s0
 
@@ -108,7 +109,7 @@ func TestBgtz(t *testing.T) {
 }
 
 func TestBlez(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.PC = 0x04
 	cpu.Registers[16] = 0 // setting $s0
 
@@ -137,7 +138,7 @@ func TestBlez(t *testing.T) {
 }
 
 func TestBeq(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.PC = 0x04
 	cpu.Registers[16] = 10 // setting $s0
 	cpu.Registers[8] = 10 // setting $t0
@@ -162,7 +163,7 @@ func TestBeq(t *testing.T) {
 }
 
 func TestAddi(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5; // writing to $t0
 
 	// addi $s0, $t0, 4095
@@ -175,7 +176,7 @@ func TestAddi(t *testing.T) {
 }
 
 func TestLW(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[16] = 0xFF0 // writing to $s0
 
 	// writing to memory at the specified address
@@ -194,7 +195,7 @@ func TestLW(t *testing.T) {
 }
 
 func TestSW(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[16] = 0xFF0 // writing to $s0
 	cpu.Registers[8] = 1024
 

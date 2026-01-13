@@ -3,10 +3,11 @@ package cpu
 import (
 	"testing"
 	"mips_emulator/defs"
+	"mips_emulator/memory"
 )
 
 func TestSlt(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 10 // setting $t0
 	cpu.Registers[16] = 5 // setting $s0
 
@@ -27,7 +28,7 @@ func TestSlt(t *testing.T) {
 }
 
 func TestSltu(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 10 // setting $t0
 	cpu.Registers[16] = 5 // setting $s0
 
@@ -49,7 +50,7 @@ func TestSltu(t *testing.T) {
 
 
 func TestSll(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 0x00000FFF
 
 	// sll $t2, $t0, 16
@@ -62,7 +63,7 @@ func TestSll(t *testing.T) {
 }
 
 func TestSra(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = -1024
 
 	// sra $t2, $t0, 1
@@ -75,7 +76,7 @@ func TestSra(t *testing.T) {
 }
 
 func TestSrl(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = -1024
 
 	// srl $t2, $t0, 1
@@ -88,7 +89,7 @@ func TestSrl(t *testing.T) {
 }
 
 func TestAnd(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5
 	cpu.Registers[9] = 10
 
@@ -103,7 +104,7 @@ func TestAnd(t *testing.T) {
 }
 
 func TestOr(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5
 	cpu.Registers[9] = 10
 
@@ -118,7 +119,7 @@ func TestOr(t *testing.T) {
 }
 
 func TestXor(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5
 	cpu.Registers[9] = 10
 
@@ -133,7 +134,7 @@ func TestXor(t *testing.T) {
 }
 
 func TestNor(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5
 	cpu.Registers[9] = 10
 
@@ -148,7 +149,7 @@ func TestNor(t *testing.T) {
 }
 
 func TestMultiplyU(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = -1
 	cpu.Registers[9] = 2
 
@@ -172,7 +173,7 @@ func TestMultiplyU(t *testing.T) {
 }
 
 func TestDivideU(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 3
 	cpu.Registers[9] = 10
 
@@ -189,7 +190,7 @@ func TestDivideU(t *testing.T) {
 
 
 func TestAdd(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5 // set register $t0
 	cpu.Registers[9] = 10 // set register $t1
 
@@ -203,7 +204,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestSubtract(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 
 	cpu.Registers[8] = 300 // set register $t0
 	cpu.Registers[9] = 100 // set register $t1
@@ -226,7 +227,7 @@ func TestSubtract(t *testing.T) {
 }
 
 func TestAddU(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 0x7FFFFFFF
 	cpu.Registers[9] = 0x7FFFFFFF
 
@@ -240,7 +241,7 @@ func TestAddU(t *testing.T) {
 }
 
 func TestSubtractU(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = -0x7FFFFFFF
 	cpu.Registers[9] = 0x7FFFFFFF
 
@@ -253,7 +254,7 @@ func TestSubtractU(t *testing.T) {
 }
 
 func TestMultiply(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 10
 	cpu.Registers[9] = 5
 
@@ -271,7 +272,7 @@ func TestMultiply(t *testing.T) {
 }
 
 func TestDivide(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.Registers[8] = 5
 	cpu.Registers[9] = 10
 

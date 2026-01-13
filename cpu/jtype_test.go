@@ -2,10 +2,11 @@ package cpu
 
 import (
 	"testing"
+	"mips_emulator/memory"
 )
 
 func TestJump(t *testing.T) {
-	cpu := InitCPU(true)
+	cpu := InitCPU(memory.InitMemory())
 	cpu.PC = 0x04
 
 	// j done

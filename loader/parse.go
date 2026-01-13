@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"mips_emulator/memory"
+	"mips_emulator/defs"
 )
 
 const (
@@ -22,11 +23,10 @@ const (
 type StartUpData struct {
 	EntryAddr uint32
 	Memory *memory.MainMemory
-	Instructions []uint32
 	GP uint32
 }
 
-func ParseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
+func parseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
 	for _, pHeader := range headers {
 		switch(pHeader.Type) {
 		case elf.PT_LOAD:
@@ -43,28 +43,24 @@ func ParseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
 				return errors.New("bytes read does not match given size")
 			}
 
-			for _, data := range buffer {
-				memory.StoreByte(addr, data)
-				addr++
+			if addr == 0x10000 {
+				fmt.Println("INSTRUCTIONS:")
+				fmt.Println("=============")
+				for i := 0; i < len(buffer); i += 4 {
+					data := binary.LittleEndian.Uint32(buffer[i:i+4])
+					fmt.Printf("%X\n", data)
+					memory.LoadInstruction(addr, defs.Word(data))
+					addr += 4
+				}
+			} else {
+				for _, data := range buffer {
+						memory.StoreByte(addr, data)
+						addr++
+				}
 			}
 		}
 	}	
 	return nil
-}
-
-func getInstructions(textSection *elf.Section) ([]uint32, error) {
-	buffer, err := textSection.Data()
-	if err != nil {
-		return []uint32{}, err
-	}
-	instructions := []uint32{}
-
-	for i := 0; i < len(buffer); i += 4 {
-		instr := binary.LittleEndian.Uint32(buffer[i:i+4])	
-		instructions = append(instructions, instr)
-	} 
-
-	return instructions, nil
 }
 
 func ParseFile(path string) (*StartUpData, error) {
@@ -91,21 +87,10 @@ func ParseFile(path string) (*StartUpData, error) {
 	
 	startUpData := StartUpData{}
 	memory := memory.InitMemory()
-	err = ParseProgramHeaders(elfFile.Progs, memory)
+	err = parseProgramHeaders(elfFile.Progs, memory)
 	if err != nil {
 		return nil, err
 	}
-
-	textSection := elfFile.Section(".text")
-	if textSection == nil {
-		return nil, errors.New("no text section")
-	}
-
-	startUpData.Instructions, err = getInstructions(textSection)
-	if err != nil {
-		return nil, err
-	}
-	
 
 	fmt.Println("ELF Metadata")
 	fmt.Println("============")
