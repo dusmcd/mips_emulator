@@ -11,8 +11,6 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
-var funcMap map[uint8]RFunc 
-
 func (cpu *CPU) sltuInstr(rs, rt, rd, shift uint8) error {
 	op1 := uint32(cpu.Registers[rs])
 	op2 := uint32(cpu.Registers[rt])

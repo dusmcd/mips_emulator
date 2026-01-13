@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DATA_SIZE = 1073741824
+	DATA_SIZE = 1073741824 // 1 GB (2^30)
 	INSTR_SIZE = 1048576
 )
 
@@ -17,28 +17,16 @@ const (
 	mutli-byte data will be stored as little-endian
 */
 type MainMemory struct {
-	Instruction *[DATA_SIZE]byte
-	Data *[INSTR_SIZE]byte
+	Instruction *[INSTR_SIZE]byte
+	Data *[DATA_SIZE]byte
 }
 
 func InitMemory() *MainMemory {
-	var instruction [DATA_SIZE]byte
-	var data [INSTR_SIZE]byte
 	memory := &MainMemory{}
-	memory.Instruction = &instruction
-	memory.Data = &data
+	memory.Instruction = &[INSTR_SIZE]byte{}
+	memory.Data = &[DATA_SIZE]byte{}
 
 	return memory
-}
-
-func getWord(addr uint32, mem []byte) defs.Word {
-	uData := binary.LittleEndian.Uint32(mem[addr:addr+4])
-	word := defs.Word(uData)
-	return word
-}
-
-func storeWord(addr uint32, val defs.Word, mem []byte) {
-	binary.LittleEndian.PutUint32(mem[addr:addr+4], uint32(val))
 }
 
 func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
@@ -49,8 +37,8 @@ func (m MainMemory) FetchInstruction(addr uint32) (defs.Word, error) {
 	if addr % 4 != 0 {
 		return 0, errors.New("address must be word-aligned")
 	}
-	data := m.Instruction[:]
-	return getWord(addr, data), nil
+
+	return defs.Word(binary.LittleEndian.Uint32(m.Instruction[addr:addr+4])), nil
 }
 
 func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
@@ -61,8 +49,7 @@ func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
 		return errors.New("address must be word-aligned")
 	}
 
-	data := m.Instruction[:]
-	storeWord(addr, instr, data)
+	binary.LittleEndian.PutUint32(m.Instruction[addr:addr+4], uint32(instr))
 	return nil
 }
 
@@ -83,8 +70,7 @@ func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 		return 0, errors.New("address must be word-aligned")
 	}
 	
-	data := m.Data[:]
-	return getWord(addr, data), nil
+	return defs.Word(binary.LittleEndian.Uint32(m.Data[addr:addr+4])), nil
 }
 
 func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
@@ -96,7 +82,6 @@ func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
 		return errors.New("address must be word-aligned")
 	}
 
-	data := m.Data[:]
-	storeWord(addr, val, data)
+	binary.LittleEndian.PutUint32(m.Data[addr:addr+4], uint32(val))
 	return nil
 }

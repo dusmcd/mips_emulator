@@ -28,7 +28,11 @@ const (
 	WORD_BYTES = 4
 )
 
+/**
+	Globals
+*/
 var opMap map[uint8]IInstr
+var funcMap map[uint8]RFunc 
 
 /**
 	32-bit architecture using the MIPS ISA
@@ -58,6 +62,8 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 	
 	// load GP (global pointer)
 	cpu.Registers[28] = defs.Word(gp)
+	// set stack pointer to highest word-aligned address
+	cpu.Registers[29] = memory.DATA_SIZE - 4
 
 	cpu.MainMemory = mem
 
@@ -83,6 +89,7 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 	}
 
 	opMap = map[uint8]IInstr{
+		0x01: cpu.regImm,
 		0x23: cpu.lwInstr,
 		0x2B: cpu.swInstr,
 		0x08: cpu.addiInstr,
@@ -117,7 +124,7 @@ func (cpu *CPU) Run(initialAddr uint32) error {
 			log.Fatal(err.Error())
 			return err
 		}
-		fmt.Printf("Instruction completed: 0x%X\n", instruction)
+		fmt.Printf("Instruction completed: 0x%X\n", uint32(instruction))
 		if cpu.Exit {
 			break
 		}
@@ -139,7 +146,8 @@ func (cpu *CPU) decodeRType() error {
 	if value, ok := funcMap[funcCode]; ok {
 		return value(rs, rt, rd, shift)
 	}
-	return errors.New("func code not found")
+	err := fmt.Sprintf("func code not found: 0x%X", funcCode)
+	return errors.New(err)
 }
 
 func (cpu *CPU) decodeIType(op uint8) error {
@@ -151,7 +159,9 @@ func (cpu *CPU) decodeIType(op uint8) error {
 		return value(rs, rt, imm)
 	}
 
-	return errors.New("op code not found")
+	err := fmt.Sprintf("op code not found: 0x%X", op)
+
+	return errors.New(err)
 }
 
 func (cpu *CPU) decodeJType(op uint8) error {

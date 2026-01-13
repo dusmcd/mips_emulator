@@ -6,7 +6,7 @@ import (
 )
 
 func TestJump(t *testing.T) {
-	cpu := InitCPU(memory.InitMemory())
+	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.PC = 0x04
 
 	// j done

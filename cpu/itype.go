@@ -5,7 +5,45 @@ import (
 	"errors"
 )
 
+const (
+	BLTZ = 0x00
+	BGEZ = 0x01
+	BLTZAL = 0x10
+	BGEZAL = 0x11
+)
+
 type IInstr func(rs, rt uint8, imm int16) error
+
+func (cpu *CPU) regImm(rs, rt uint8, imm int16) error {
+	check := cpu.Registers[rs]
+	newPC := defs.Word(cpu.PC) + defs.Word(imm << 2)
+
+	switch(rt) {
+	case BLTZ:
+		if check < 0 {
+			cpu.PC = uint32(newPC)
+		}
+		break
+	case BGEZ:
+		if check >= 0 {
+			cpu.PC = uint32(newPC)
+		}
+		break
+	case BLTZAL:
+		if check < 0 {
+			cpu.Registers[31] = defs.Word(cpu.PC)
+			cpu.PC = uint32(newPC)
+		}
+		break
+	case BGEZAL:
+		if check >= 0 {
+			cpu.Registers[31] = defs.Word(cpu.PC)
+			cpu.PC = uint32(newPC)
+		}
+		break
+	}
+	return nil
+}
 
 func (cpu *CPU) oriInstr(rs, rt uint8, imm int16) error {
 	op1 := cpu.Registers[rs]
