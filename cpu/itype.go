@@ -18,7 +18,7 @@ func (cpu *CPU) regImm(rs, rt uint8, imm int16) error {
 	check := cpu.Registers[rs]
 	newPC := defs.Word(cpu.PC) + defs.Word(imm << 2)
 
-	switch(rt) {
+	switch(cpu.Registers[rt]) {
 	case BLTZ:
 		if check < 0 {
 			cpu.PC = uint32(newPC)

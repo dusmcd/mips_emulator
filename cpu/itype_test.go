@@ -6,6 +6,112 @@ import (
 	"mips_emulator/memory"
 )
 
+func TestBgez(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.PC = 0x04
+	cpu.Registers[16] = 10 // setting $s0
+
+	// bgez $s0, done
+	cpu.Instruction = 0x0608000e
+
+	// rt = $t0
+	cpu.Registers[8] = BGEZ
+	cpu.DecodeInstr()
+	newPC := (0x0e << 2) + 0x04
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+
+	cpu.Registers[16] = -2
+	cpu.DecodeInstr()
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+}
+
+func TestBgezal(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.PC = 0x04
+	cpu.Registers[16] = 10 // setting $s0
+
+	cpu.Instruction = 0x0608000e
+	// rt = $t0
+	cpu.Registers[8] = BGEZAL
+	cpu.DecodeInstr()
+	newPC := (0x0e << 2) + 0x04
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+
+	if cpu.Registers[31] != 0x04 {
+		t.Errorf("$ra wrong. expected=0x%X, got=0x%X", 0x04, cpu.Registers[31])
+	}
+
+	cpu.Registers[16] = -2
+	cpu.DecodeInstr()
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+}
+
+func TestBltzal(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.PC = 0x04
+	cpu.Registers[16] = -2 // setting $s0
+
+	cpu.Instruction = 0x0608000e
+	// rt = $t0
+	cpu.Registers[8] = BLTZAL
+	cpu.DecodeInstr()
+	newPC := (0x0e << 2) + 0x04
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+
+	if cpu.Registers[31] != 0x04 {
+		t.Errorf("$ra wrong. expected=0x%X, got=0x%X", 0x04, cpu.Registers[31])
+	}
+
+	cpu.Registers[16] = 10
+	cpu.DecodeInstr()
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got0x%X", newPC, cpu.PC)
+	}
+
+}
+
+func TestBltz(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.PC = 0x04
+	cpu.Registers[16] = -2 // setting $s0
+
+	// bltz $s0, done
+	cpu.Instruction = 0x0608000e
+
+	// rt = $t0
+	cpu.Registers[8] = BLTZ
+	cpu.DecodeInstr()
+	newPC := (0x0e << 2) + 0x04
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+
+	cpu.Registers[16] = 10
+	cpu.DecodeInstr()
+
+	if cpu.PC != uint32(newPC) {
+		t.Errorf("PC wrong. expected=0x%X, got=0x%X", newPC, cpu.PC)
+	}
+
+}
+
 func TestAddiu(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[16] = 0x000FFFFF // setting $s0

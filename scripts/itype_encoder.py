@@ -8,7 +8,8 @@ LABEL_MAP = {"done": 25}
 ops = {
         "lw": 0x23, "sw": 0x2B, "addi": 0x08, "beq": 0x04,
         "bne": 0x05, "blez": 0x06, "bgtz": 0x07, "addiu": 0x09,
-        "andi": 0x0C, "ori": 0x0D, "xori": 0x0E
+        "andi": 0x0C, "ori": 0x0D, "xori": 0x0E, "bltz": 0x01,
+        "bgez": 0x01, "bltzal": 0x01, "bgezal": 0x01
 }
 
 def encode(assembly, current_line=0, label_map=None):
@@ -42,7 +43,11 @@ def encode(assembly, current_line=0, label_map=None):
         rs = registers[0].strip()
         label = registers[1].strip()
         label_line = label_map[label]
-
+    elif instr in ["bltz", "bgez", "bltzal", "bgezal"]:
+        rt = "$t0"
+        rs = registers[0].strip()
+        label = registers[1].strip()
+        label_line = label_map[label]
         imm = label_line - (current_line + 1)
     else:
         rs = registers[1].strip()
