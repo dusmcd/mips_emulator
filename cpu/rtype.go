@@ -11,6 +11,43 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
+func (cpu *CPU) cloInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	// only negative numbers will have a leading one in signed integers
+	if op1 >= 0 {
+		cpu.Registers[rd] = 0
+		return nil
+	}
+	var bitMask uint32 = 0xF0000000
+	shiftAmt := 28
+	current := (uint32(op1) & bitMask) >> shiftAmt
+	count := 0
+
+	for current >= 8 && shiftAmt >= 0 {
+		if current == 0xF {
+			count += 4
+		} else if current == 0xE {
+			count += 3
+		} else if current >= 0xC {
+			count += 2
+		} else {
+			count++
+		}
+		shiftAmt -= 4
+		bitMask = bitMask >> 4
+		current = (uint32(op1) & bitMask) >> shiftAmt
+	}
+
+	cpu.Registers[rd] = defs.Word(count)
+	
+	return nil
+}
+
 func (cpu *CPU) sltuInstr(rs, rt, rd, shift uint8) error {
 	op1 := uint32(cpu.Registers[rs])
 	op2 := uint32(cpu.Registers[rt])

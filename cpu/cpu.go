@@ -33,6 +33,7 @@ const (
 */
 var opMap map[uint8]IInstr
 var funcMap map[uint8]RFunc 
+var funcMapC map[uint8]RFunc
 
 /**
 	32-bit architecture using the MIPS ISA
@@ -88,6 +89,10 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 		0x2B: cpu.sltuInstr, 
 	}
 
+	funcMapC = map[uint8]RFunc{
+		0x21: cpu.cloInstr,
+	}
+
 	opMap = map[uint8]IInstr{
 		0x01: cpu.regImm,
 		0x23: cpu.lwInstr,
@@ -134,7 +139,7 @@ func (cpu *CPU) Run(initialAddr uint32) error {
 }
 
 
-func (cpu *CPU) decodeRType() error {
+func (cpu *CPU) decodeRType(op uint8) error {
 	funcCode := uint8(cpu.Instruction & 0x0000003F)
 	// get registers
 	rs := uint8(cpu.Instruction & 0x03E00000 >> (WORD_BITS - OP_BITS - RS_BITS))
@@ -142,12 +147,22 @@ func (cpu *CPU) decodeRType() error {
 	rd := uint8(cpu.Instruction & 0x0000F800 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS - RD_BITS))
 	shift := uint8(cpu.Instruction & 0x000007C0 >> (WORD_BITS - OP_BITS - RS_BITS - RT_BITS - RD_BITS - SHIFT_BITS))
 
-	// execute operation
-	if value, ok := funcMap[funcCode]; ok {
-		return value(rs, rt, rd, shift)
+	switch(op) {
+	case 0x0:
+		if value, ok := funcMap[funcCode]; ok {
+			return value(rs, rt, rd, shift)
+		}
+		err := fmt.Sprintf("func code not found: 0x%X", funcCode)
+		return errors.New(err)
+	case 0x1C:
+		if value, ok := funcMapC[funcCode]; ok {
+			return value(rs, rt, rd, shift)
+		}
+		err := fmt.Sprintf("func code not found: 0x%X", funcCode)
+		return errors.New(err)
 	}
-	err := fmt.Sprintf("func code not found: 0x%X", funcCode)
-	return errors.New(err)
+
+	return errors.New("invalid machine code")
 }
 
 func (cpu *CPU) decodeIType(op uint8) error {
@@ -183,7 +198,7 @@ func (cpu *CPU) DecodeInstr() error {
 
 	var instrType InstrType
 	op := uint8(cpu.Instruction & 0xFC000000 >> (WORD_BITS - OP_BITS))
-	if op == 0 {
+	if op == 0 || op == 0x1C {
 		instrType = RType
 	} else if op == 0x02 || op == 0x03 {
 		instrType = JType
@@ -194,7 +209,7 @@ func (cpu *CPU) DecodeInstr() error {
 	switch instrType {
 	case RType:
 		// execute r-type instruction
-		return cpu.decodeRType()
+		return cpu.decodeRType(op)
 	case IType:
 		// execute i-type instruction
 		return cpu.decodeIType(op);
