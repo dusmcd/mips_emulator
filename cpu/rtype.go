@@ -11,6 +11,48 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
+func (cpu *CPU) clzInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+
+	if rd == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	// only positive numbers will have leading zeros in signed integers
+	if op1 < 0 {
+		cpu.Registers[rd] = 0
+		return nil
+	}
+
+	var bitMask uint32 = 0xF0000000
+	shiftAmt := 28
+	current := (uint32(op1) & bitMask) >> shiftAmt
+	count := 0
+
+	for current <= 0x7 && shiftAmt >= 0 {
+		if current == 0x0 {
+			count += 4
+		} else if current == 0x1 {
+			count += 3
+		} else if current <= 0x3 {
+			count += 2
+		} else {
+			count++
+		}
+
+		if current > 0x0 {
+			break
+		}
+
+		shiftAmt -= 4
+		bitMask = bitMask >> 4
+		current = (uint32(op1) & bitMask) >> shiftAmt
+	}
+
+	cpu.Registers[rd] = defs.Word(count)
+	return nil
+}
+
 func (cpu *CPU) cloInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 
@@ -28,7 +70,7 @@ func (cpu *CPU) cloInstr(rs, rt, rd, shift uint8) error {
 	current := (uint32(op1) & bitMask) >> shiftAmt
 	count := 0
 
-	for current >= 8 && shiftAmt >= 0 {
+	for current >= 0x8 && shiftAmt >= 0x0 {
 		if current == 0xF {
 			count += 4
 		} else if current == 0xE {
@@ -38,6 +80,11 @@ func (cpu *CPU) cloInstr(rs, rt, rd, shift uint8) error {
 		} else {
 			count++
 		}
+
+		if current < 0xF {
+			break
+		}
+
 		shiftAmt -= 4
 		bitMask = bitMask >> 4
 		current = (uint32(op1) & bitMask) >> shiftAmt

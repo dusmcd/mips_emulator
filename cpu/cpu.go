@@ -90,6 +90,7 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 	}
 
 	funcMapC = map[uint8]RFunc{
+		0x20: cpu.clzInstr,
 		0x21: cpu.cloInstr,
 	}
 
