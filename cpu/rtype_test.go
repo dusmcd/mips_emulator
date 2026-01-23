@@ -6,6 +6,61 @@ import (
 	"mips_emulator/memory"
 )
 
+func TestClz(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = -1 // setting $t0
+
+	// clz $s0, $t0
+	cpu.Instruction = 0x71108020
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 0 {
+		t.Errorf("destination register wrong. expected=0, got=%d", cpu.Registers[16])
+	}
+
+	cpu.Registers[8] = 1
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 31 {
+		t.Errorf("destination register wrong. expected=31, got=%d", cpu.Registers[16])
+	}
+
+	cpu.Registers[8] = 0x00FFFFFC
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 8 {
+		t.Errorf("destination register wrong. expected=8, got=%d", cpu.Registers[16])
+	}
+
+}
+
+func TestClo(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = 0x1 // seting $t0
+
+	// clo $s0, $t0
+	cpu.Instruction = 0x71108021
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 0 {
+		t.Errorf("destination register wrong. expected=0, got=%d", cpu.Registers[16])
+	}
+
+	cpu.Registers[8] = -1
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 32 {
+		t.Errorf("destination register wrong. expected=32, got=%d", cpu.Registers[16])
+	}
+
+	cpu.Registers[8] = -75000
+	cpu.DecodeInstr()
+
+	if cpu.Registers[16] != 15 {
+		t.Errorf("destination register wrong. expected=15, got=%d", cpu.Registers[16])
+	}
+}
+
 func TestSlt(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[8] = 10 // setting $t0

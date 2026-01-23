@@ -29,7 +29,7 @@ func (cpu *CPU) clzInstr(rs, rt, rd, shift uint8) error {
 	current := (uint32(op1) & bitMask) >> shiftAmt
 	count := 0
 
-	for current <= 0x7 && shiftAmt >= 0 {
+	for current <= 0x7 {
 		if current == 0x0 {
 			count += 4
 		} else if current == 0x1 {
@@ -45,6 +45,10 @@ func (cpu *CPU) clzInstr(rs, rt, rd, shift uint8) error {
 		}
 
 		shiftAmt -= 4
+		if shiftAmt < 0 {
+			break
+		}
+
 		bitMask = bitMask >> 4
 		current = (uint32(op1) & bitMask) >> shiftAmt
 	}
@@ -70,7 +74,7 @@ func (cpu *CPU) cloInstr(rs, rt, rd, shift uint8) error {
 	current := (uint32(op1) & bitMask) >> shiftAmt
 	count := 0
 
-	for current >= 0x8 && shiftAmt >= 0x0 {
+	for current >= 0x8 {
 		if current == 0xF {
 			count += 4
 		} else if current == 0xE {
@@ -86,6 +90,10 @@ func (cpu *CPU) cloInstr(rs, rt, rd, shift uint8) error {
 		}
 
 		shiftAmt -= 4
+		if shiftAmt < 0 {
+			break
+		}
+
 		bitMask = bitMask >> 4
 		current = (uint32(op1) & bitMask) >> shiftAmt
 	}
