@@ -87,6 +87,8 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 		0x0C: cpu.syscall,
 		0x2A: cpu.sltInstr, 
 		0x2B: cpu.sltuInstr, 
+		0x08: cpu.jrInstr,
+		0x09: cpu.jalrInstr,
 	}
 
 	funcMapC = map[uint8]RFunc{

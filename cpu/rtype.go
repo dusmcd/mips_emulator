@@ -11,6 +11,21 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
+func (cpu *CPU) jrInstr(rs, rt, rd, shift uint8) error {
+	addr := cpu.Registers[rs]
+	cpu.PC = uint32(addr)
+
+	return nil
+}
+
+func (cpu *CPU) jalrInstr(rs, rt, rd, shift uint8) error {
+	addr := cpu.Registers[rs]
+	cpu.Registers[31] = defs.Word(cpu.PC) // setting return address
+	cpu.PC = uint32(addr)
+
+	return nil
+}
+
 func (cpu *CPU) clzInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 
