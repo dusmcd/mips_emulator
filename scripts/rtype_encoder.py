@@ -6,7 +6,7 @@ funcs = {
     "mult": 0x18, "multu": 0x19, "div": 0x1A, "divu": 0x1B,
     "and": 0x24, "or": 0x25, "xor": 0x26, "nor": 0x27,
     "sll": 0x0, "srl": 0x02, "sra": 0x03, "syscall": 0x0C,
-    "slt": 0x2A, "sltu": 0x2B
+    "slt": 0x2A, "sltu": 0x2B, "jr": 0x08, "jalr": 0x09
 }
 
 def get_correct_bits(num, bits):
@@ -27,6 +27,10 @@ def encode_assembly(asm):
         rd = "$zero"
         rs = registers[0].strip()
         rt = registers[1].strip()
+    elif instr in ["jr", "jalr"]:
+        rd = "$zero"
+        rs = registers[0].strip()
+        rt = "$zero"
     elif instr in ["sll", "srl", "sra"]:
         rs = "$zero"
         rd = registers[0].strip()

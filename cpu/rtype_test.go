@@ -6,6 +6,37 @@ import (
 	"mips_emulator/memory"
 )
 
+func TestJalr(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[16] = 0x04 // setting $s0
+	cpu.PC = 0x64
+
+	// jalr $s0
+	cpu.Instruction = 0x02000009
+	cpu.DecodeInstr()
+
+	if cpu.PC != 0x04 {
+		t.Errorf("PC wrong. expected=0x04, got=0x%X", cpu.PC)
+	}
+
+	if cpu.Registers[31] != 0x64 {
+		t.Errorf("$ra wrong. expected=0x64, got=0x%X", cpu.Registers[31])
+	}
+}
+
+func TestJr(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[16] = 0x04 // setting $s0
+
+	// jr $s0
+	cpu.Instruction = 0x02000008
+	cpu.DecodeInstr()
+
+	if cpu.PC != 0x04 {
+		t.Errorf("PC wrong. expected=0x04, got=%d", cpu.PC)
+	}
+}
+
 func TestClz(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[8] = -1 // setting $t0
