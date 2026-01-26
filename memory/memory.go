@@ -53,20 +53,20 @@ func (m *MainMemory) LoadInstruction(addr uint32, instr defs.Word) error {
 	return nil
 }
 
-func (m *MainMemory) StoreByte(addr uint32, data byte) error {
+func (m *MainMemory) StoreByte(addr uint32, data int8) error {
 	if int(addr) > INSTR_SIZE {
 		return errors.New("invalid address")
 	}
-	m.Data[addr] = data
+	m.Data[addr] = byte(data)
 	return nil
 }
 
-func (m MainMemory) LoadByte(addr uint32) (byte, error) {
+func (m MainMemory) LoadByte(addr uint32) (int8, error) {
 	if int(addr) > DATA_SIZE {
 		return 0, errors.New("invalid address")
 	}
 
-	return m.Data[addr], nil
+	return int8(m.Data[addr]), nil
 }
 
 func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {

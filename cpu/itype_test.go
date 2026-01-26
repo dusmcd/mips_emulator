@@ -6,6 +6,66 @@ import (
 	"mips_emulator/memory"
 )
 
+func TestLBU(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[16] = 0xFF0 // writing to $s0
+	fullAddr := uint32(4 + cpu.Registers[16])
+
+	err := cpu.MainMemory.StoreByte(fullAddr, -1)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+
+	// lbu $t0, 4($s0)
+	cpu.Instruction = 0x8e080004
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 255 {
+		t.Errorf("destination register wrong. expected=255, got=%d", cpu.Registers[8])
+	}
+
+	err = cpu.MainMemory.StoreByte(fullAddr, 100)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 100 {
+		t.Errorf("destination register wrong. expected=100, got=%d", cpu.Registers[8])
+	}
+}
+
+func TestLB(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[16] = 0xFF0 // writing to $s0
+	fullAddr := uint32(4 + cpu.Registers[16])
+
+	// store data at specified memory address
+	err := cpu.MainMemory.StoreByte(fullAddr, -1)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+
+	// lb $t0, 4($s0)
+	cpu.Instruction = 0x82080004
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != -1 {
+		t.Errorf("destination register wrong. expected=-1, got=%d", cpu.Registers[8])
+	}
+
+	err = cpu.MainMemory.StoreByte(fullAddr, 100)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+
+	cpu.DecodeInstr()
+	if cpu.Registers[8] != 100 {
+		t.Errorf("destination register wrong. expected=100, got=%d", cpu.Registers[8])
+	}
+}
+
 func TestBgez(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.PC = 0x04
