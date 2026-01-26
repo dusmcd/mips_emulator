@@ -61,6 +61,14 @@ func (m *MainMemory) StoreByte(addr uint32, data byte) error {
 	return nil
 }
 
+func (m MainMemory) LoadByte(addr uint32) (byte, error) {
+	if int(addr) > DATA_SIZE {
+		return 0, errors.New("invalid address")
+	}
+
+	return m.Data[addr], nil
+}
+
 func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 	if int(addr) > DATA_SIZE - 4 {
 		return 0, errors.New("invalid address")	
