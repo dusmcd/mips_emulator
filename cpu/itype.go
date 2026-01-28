@@ -14,6 +14,23 @@ const (
 
 type IInstr func(rs, rt uint8, imm int16) error
 
+func (cpu *CPU) lhInstr(rs, rt uint8, imm int16) error {
+	baseAddr := cpu.Registers[rs]
+	fullAddr := defs.Word(imm) + baseAddr
+
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	memoryVal, err := cpu.MainMemory.LoadHalfWord(uint32(fullAddr))
+	if err != nil {
+		return err
+	}
+
+	cpu.Registers[rt] = defs.Word(memoryVal)
+	return nil
+}
+
 func (cpu *CPU) lbuInstr(rs, rt uint8, imm int16) error {
 	baseAddr := cpu.Registers[rs]
 	fullAddr := defs.Word(imm) + baseAddr

@@ -54,7 +54,7 @@ func parseProgramHeaders(headers []*elf.Prog, memory *memory.MainMemory) error {
 				}
 			} else {
 				for _, data := range buffer {
-						memory.StoreByte(addr, data)
+						memory.StoreByte(addr, int8(data))
 						addr++
 				}
 			}

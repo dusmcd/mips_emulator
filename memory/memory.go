@@ -69,6 +69,20 @@ func (m MainMemory) LoadByte(addr uint32) (int8, error) {
 	return int8(m.Data[addr]), nil
 }
 
+func (m MainMemory) LoadHalfWord(addr uint32) (int16, error) {
+	if int(addr) > DATA_SIZE - 2 {
+		return 0, errors.New("invalid address")
+	}
+
+	if int(addr) % 2 != 0 {
+		return 0, errors.New("address must be half-word aligned")
+	}
+
+	hw := binary.LittleEndian.Uint16(m.Data[addr:addr+2])
+
+	return int16(hw), nil
+}
+
 func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 	if int(addr) > DATA_SIZE - 4 {
 		return 0, errors.New("invalid address")	
