@@ -95,6 +95,19 @@ func (m MainMemory) LoadWord(addr uint32) (defs.Word, error) {
 	return defs.Word(binary.LittleEndian.Uint32(m.Data[addr:addr+4])), nil
 }
 
+func (m *MainMemory) StoreHalfWord(addr uint32, val int16) error {
+	if int(addr) > DATA_SIZE - 2 {
+		return errors.New("invalid address")
+	}
+
+	if int(addr) % 2 != 0 {
+		return errors.New("address must be half-word aligned")
+	}
+
+	binary.LittleEndian.PutUint16(m.Data[addr:addr+2], uint16(val))
+	return nil
+}
+
 func (m *MainMemory) StoreWord(addr uint32, val defs.Word) error {
 	if int(addr) > DATA_SIZE - 4 {
 		return errors.New("invalid address")

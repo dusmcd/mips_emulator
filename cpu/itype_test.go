@@ -6,6 +6,69 @@ import (
 	"mips_emulator/memory"
 )
 
+func TestLHU(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[16] = 0xFF0 // writing to $s0
+	fullAddr := uint32(4 + cpu.Registers[16])
+
+	// store half word in memory
+	err := cpu.MainMemory.StoreHalfWord(fullAddr, -1)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+	
+	// lhu $t0, 4($s0)
+	cpu.Instruction = 0x96080004
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 65535 {
+		t.Errorf("destination register wrong. expected=65535, got=%d", cpu.Registers[8])
+	}
+
+	err = cpu.MainMemory.StoreHalfWord(fullAddr, 100)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 100 {
+		t.Errorf("destination register wrong. expected=100, got=%d", cpu.Registers[8])
+	}
+}
+
+
+func TestLH(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[16] = 0xFF0 // writing to $s0
+	fullAddr := uint32(4 + cpu.Registers[16])
+
+	// store half word in memory
+	err := cpu.MainMemory.StoreHalfWord(fullAddr, -1)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+	
+	// lh $t0, 4($s0)
+	cpu.Instruction = 0x86080004
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != -1 {
+		t.Errorf("destination register wrong. expected=-1, got=%d", cpu.Registers[8])
+	}
+
+	err = cpu.MainMemory.StoreHalfWord(fullAddr, 100)
+	if err != nil {
+		t.Fatalf("error writing to memory")
+	}
+
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 100 {
+		t.Errorf("destination register wrong. expected=100, got=%d", cpu.Registers[8])
+	}
+}
+
 func TestLBU(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[16] = 0xFF0 // writing to $s0
@@ -17,7 +80,7 @@ func TestLBU(t *testing.T) {
 	}
 
 	// lbu $t0, 4($s0)
-	cpu.Instruction = 0x8e080004
+	cpu.Instruction = 0x92080004
 	cpu.DecodeInstr()
 
 	if cpu.Registers[8] != 255 {

@@ -10,7 +10,7 @@ ops = {
         "bne": 0x05, "blez": 0x06, "bgtz": 0x07, "addiu": 0x09,
         "andi": 0x0C, "ori": 0x0D, "xori": 0x0E, "bltz": 0x01,
         "bgez": 0x01, "bltzal": 0x01, "bgezal": 0x01, "lb": 0x20,
-        "lbu": 0x23
+        "lbu": 0x24, "lh": 0x21, "lhu": 0x25
 }
 
 def encode(assembly, current_line=0, label_map=None):
@@ -23,7 +23,7 @@ def encode(assembly, current_line=0, label_map=None):
     rs = None
     imm = None
     
-    if instr in ["lw", "sw", "lb", "lbu"]:
+    if instr in ["lw", "sw", "lb", "lbu", "lh", "lhu"]:
         # get offset = immediate
         # get base addr in parens
         addr = registers[1].strip()
