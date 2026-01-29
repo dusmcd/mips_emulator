@@ -14,6 +14,20 @@ const (
 
 type IInstr func(rs, rt uint8, imm int16) error
 
+func (cpu *CPU) luiInstr(rs, rt uint8, imm int16) error {
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	// this will ensure that the low bits are zero
+	cpu.Registers[rt] = 0
+
+	// loading high 16 bits
+	cpu.Registers[rt] |= defs.Word(imm) << 16
+
+	return nil
+}
+
 func (cpu *CPU) lhuInstr(rs, rt uint8, imm int16) error {
 	baseAddr := cpu.Registers[rs]
 	fullAddr := defs.Word(imm) + baseAddr

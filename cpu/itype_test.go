@@ -6,6 +6,26 @@ import (
 	"mips_emulator/memory"
 )
 
+func TestLUI(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = 2300
+
+	// lui $t0, 255
+	cpu.Instruction = 0x3c0800ff
+	cpu.DecodeInstr()
+
+	upper16 := (uint32(cpu.Registers[8]) & 0xFFFF0000) >> 16
+	lower16 := cpu.Registers[8] & 0x0000FFFF
+
+	if upper16 != 255 {
+		t.Errorf("upper 16 bits wrong. expected=255, got=%d", upper16)
+	}
+
+	if lower16 != 0 {
+		t.Errorf("lower 16 bits wrong. expected=0, got=%d", lower16)
+	}
+}
+
 func TestLHU(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[16] = 0xFF0 // writing to $s0

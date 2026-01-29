@@ -113,6 +113,7 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 		0x24: cpu.lbuInstr,
 		0x21: cpu.lhInstr,
 		0x25: cpu.lhuInstr,
+		0x0F: cpu.luiInstr,
 	}
 	
 

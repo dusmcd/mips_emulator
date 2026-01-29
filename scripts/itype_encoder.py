@@ -10,7 +10,7 @@ ops = {
         "bne": 0x05, "blez": 0x06, "bgtz": 0x07, "addiu": 0x09,
         "andi": 0x0C, "ori": 0x0D, "xori": 0x0E, "bltz": 0x01,
         "bgez": 0x01, "bltzal": 0x01, "bgezal": 0x01, "lb": 0x20,
-        "lbu": 0x24, "lh": 0x21, "lhu": 0x25
+        "lbu": 0x24, "lh": 0x21, "lhu": 0x25, "lui": 0x0F
 }
 
 def encode(assembly, current_line=0, label_map=None):
@@ -29,6 +29,10 @@ def encode(assembly, current_line=0, label_map=None):
         addr = registers[1].strip()
         (imm, rs) = addr.split("(")
         rs = rs.rstrip(")")
+    elif instr in ["lui"]:
+        rs = "$zero"
+        rt = registers[0].strip()
+        imm = registers[1].strip()
     elif instr in ["beq", "bne"]:
         # imm = label, will need to calculate
         # PC offset
