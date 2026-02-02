@@ -11,6 +11,62 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
+func (cpu *CPU) msubuInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	product := uint32(op1) * uint32(op2)
+	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
+
+	cpu.HiLow.hi -= hiBits
+	cpu.HiLow.lo -= loBits
+
+	return nil
+}
+
+func (cpu *CPU) msubInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	product := op1 * op2
+	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
+
+	cpu.HiLow.hi -= hiBits
+	cpu.HiLow.lo -= loBits
+
+	return nil
+}
+
+
+
+func (cpu *CPU) maddInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	product := op1 * op2
+	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
+
+	cpu.HiLow.hi += hiBits
+	cpu.HiLow.lo += loBits
+
+	return nil
+}
+
+func (cpu *CPU) madduInstr(rs, rt, rd, shift uint8) error {
+	op1 := cpu.Registers[rs]
+	op2 := cpu.Registers[rt]
+	product := uint32(op1) * uint32(op2)
+	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
+
+	cpu.HiLow.hi += hiBits
+	cpu.HiLow.lo += loBits
+
+	return nil
+}
+
+
+
 func (cpu *CPU) jrInstr(rs, rt, rd, shift uint8) error {
 	addr := cpu.Registers[rs]
 	cpu.PC = uint32(addr)
