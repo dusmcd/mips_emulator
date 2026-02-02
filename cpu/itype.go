@@ -14,6 +14,62 @@ const (
 
 type IInstr func(rs, rt uint8, imm int16) error
 
+/**
+* load the portion of the word starting at the effective address
+* and ending at the most significant byte of the word
+*/
+func (cpu *CPU) lwlInstr(rs, rt uint8, imm int16) error {
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+
+	baseAddr := cpu.Registers[rs]
+	fullAddr := defs.Word(imm) + baseAddr
+	k := fullAddr % 4
+	size := int(4 - k)
+
+	for i := range size {
+		addr := uint32(fullAddr) + uint32(i)
+		current, err := cpu.MainMemory.LoadByte(addr)	
+		if err != nil {
+			return err
+		}
+
+		bitMask := uint32(current) & (0x000000FF << (4 - size + i))
+		cpu.Registers[rt] |= defs.Word(bitMask)
+	}
+
+
+	return nil
+}
+
+/**
+* load the portion of the word starting at the effective address
+* and ending at the least significant byte of the word
+*/
+func (cpu *CPU) lwrInstr(rs, rt uint8, imm int16) error {
+	if rt == 0 {
+		return errors.New("cannot write to $zero register")
+	}
+	baseAddr := cpu.Registers[rs]
+	fullAddr := defs.Word(imm) + baseAddr
+	k := fullAddr % 4
+	size := k + 1
+
+	for i := range size {
+		addr := uint32(fullAddr) - uint32(i)
+		current, err := cpu.MainMemory.LoadByte(addr)
+		if err != nil {
+			return err
+		}
+
+		bitMask := uint32(current) & (0xFF000000 >> (4 - size + i))
+		cpu.Registers[rt] |= defs.Word(bitMask)
+	}
+
+	return nil
+}
+
 func (cpu *CPU) luiInstr(rs, rt uint8, imm int16) error {
 	if rt == 0 {
 		return errors.New("cannot write to $zero register")
