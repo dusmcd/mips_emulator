@@ -12,9 +12,9 @@ const (
 type RFunc func(rs, rt, rd, shift uint8) error
 
 func (cpu *CPU) msubuInstr(rs, rt, rd, shift uint8) error {
-	op1 := cpu.Registers[rs]
-	op2 := cpu.Registers[rt]
-	product := uint32(op1) * uint32(op2)
+	op1 := uint64(uint(cpu.Registers[rs]) & 0x00000000FFFFFFFF)
+	op2 := uint64(uint(cpu.Registers[rt]) & 0x00000000FFFFFFFF)
+	product := op1 * op2
 	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -25,8 +25,8 @@ func (cpu *CPU) msubuInstr(rs, rt, rd, shift uint8) error {
 }
 
 func (cpu *CPU) msubInstr(rs, rt, rd, shift uint8) error {
-	op1 := cpu.Registers[rs]
-	op2 := cpu.Registers[rt]
+	op1 := signExtend(cpu.Registers[rs])
+	op2 := signExtend(cpu.Registers[rt])
 	product := op1 * op2
 	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
