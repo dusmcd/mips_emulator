@@ -37,12 +37,18 @@ func (cpu *CPU) msubInstr(rs, rt, rd, shift uint8) error {
 	return nil
 }
 
-
+func signExtend(num defs.Word) int64 {
+	if num < 0 {
+		return int64(num)
+	}
+	return int64(uint(num) & 0x00000000FFFFFFFF)
+}
 
 func (cpu *CPU) maddInstr(rs, rt, rd, shift uint8) error {
-	op1 := cpu.Registers[rs]
-	op2 := cpu.Registers[rt]
-	product := int64(op1 * op2)
+	op1 := signExtend(cpu.Registers[rs])
+	op2 := signExtend(cpu.Registers[rt])
+
+	product := op1 * op2	
 	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -53,9 +59,9 @@ func (cpu *CPU) maddInstr(rs, rt, rd, shift uint8) error {
 }
 
 func (cpu *CPU) madduInstr(rs, rt, rd, shift uint8) error {
-	op1 := cpu.Registers[rs]
-	op2 := cpu.Registers[rt]
-	product := uint64(op1 * op2)
+	op1 := uint64(cpu.Registers[rs]) & 0x00000000FFFFFFFF
+	op2 := uint64(cpu.Registers[rt]) & 0x00000000FFFFFFFF
+	product := op1 * op2
 	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -277,9 +283,9 @@ func (cpu *CPU) divUInstr(rs, rt, rd, shift uint8) error {
 }
 
 func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
-	op1 := (cpu.Registers[rs])
-	op2 := (cpu.Registers[rt])
-	product := uint64(op1 * op2)
+	op1 := uint64(uint(cpu.Registers[rs]) & 0x00000000FFFFFFFF)
+	op2 := uint64(uint(cpu.Registers[rt]) & 0x00000000FFFFFFFF)
+	product := op1 * op2
 	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -287,9 +293,9 @@ func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
 }
 
 func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
-	op1 := cpu.Registers[rs]
-	op2 := cpu.Registers[rt]
-	product := int64(op1 * op2)
+	op1 := signExtend(cpu.Registers[rs])
+	op2 := signExtend(cpu.Registers[rt])
+	product := op1 * op2
 	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 

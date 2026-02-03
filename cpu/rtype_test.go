@@ -18,7 +18,7 @@ func TestMadd(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[8] = 3000000 // setting $t0
 	cpu.Registers[9] = 5000000 // setting $t1
-	product := int64(cpu.Registers[8] * cpu.Registers[9])
+	product := 3000000 * 5000000
 
 	// madd $t0, $t1
 	cpu.Instruction = 0x71090000
@@ -34,22 +34,40 @@ func TestMadd(t *testing.T) {
 	if cpu.HiLow.lo != loBits {
 		t.Errorf("LO register wrong. expected=%d, got=%d", loBits, cpu.HiLow.lo)
 	}
+
+	cpu.Registers[8] = -100
+	cpu.Registers[9] = 3
+	cpu.HiLow.hi = 0
+	cpu.HiLow.lo = 0
+	cpu.DecodeInstr()
+
+	product = -100 * 3
+	loBits = getLoBits(uint64(product))
+	hiBits = getHiBits(uint64(product))
+
+	if cpu.HiLow.hi != hiBits {
+		t.Errorf("HI register wrong. expected=%d, got=%d", hiBits, cpu.HiLow.hi)
+	}
+
+	if cpu.HiLow.lo != loBits {
+		t.Errorf("LO register wrong. expected=%d, got=%d", loBits, cpu.HiLow.lo)
+	}
+
 }
 
 func TestMaddu(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
-	cpu.Registers[8] = -4095 // setting $t0
-	cpu.Registers[9] = 2 // setting $t1
+	cpu.Registers[8] = -1 // setting $t0
+	cpu.Registers[9] = 1 // setting $t1
 
-	//product := uint64(cpu.Registers[8]) * uint64(cpu.Registers[9])
-	product := uint64(cpu.Registers[8] * cpu.Registers[9])
+	product := uint64(0xFFFFFFFF)
 
 	// maddu $t0, $t1
 	cpu.Instruction = 0x71090001
 	cpu.DecodeInstr()
 
-	loBits := getLoBits(uint64(product))
-	hiBits := getHiBits(uint64(product))
+	loBits := getLoBits(product)
+	hiBits := getHiBits(product)
 
 	if uint32(cpu.HiLow.hi) != uint32(hiBits) {
 		t.Errorf("HI register wrong. expected=%d, got=%d", hiBits, cpu.HiLow.hi)
@@ -292,13 +310,13 @@ func TestNor(t *testing.T) {
 func TestMultiplyU(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[8] = -1
-	cpu.Registers[9] = 2
+	cpu.Registers[9] = 1
 
 	
 	cpu.Instruction = 0x01285019
 	cpu.DecodeInstr()
 
-	expected := uint64(cpu.Registers[8] * cpu.Registers[9])
+	expected := uint64(0xFFFFFFFF)
 
 	hi := defs.Word(uint(expected) & 0xFFFFFFFF00000000 >> 32)
 	lo := defs.Word(uint(expected) & 0x00000000FFFFFFFF)
@@ -408,6 +426,18 @@ func TestMultiply(t *testing.T) {
 	}
 
 	if cpu.HiLow.hi != 0 {
+		t.Errorf("hi register wrong. expected=%d, got=%d", 0, cpu.HiLow.hi)
+	}
+
+	cpu.Registers[8] = -10
+	cpu.Registers[9] = 5
+	cpu.DecodeInstr()
+
+	if cpu.HiLow.lo != -50 {
+		t.Errorf("lo register wrong. expected=%d, got=%d", 50, cpu.HiLow.lo)
+	}
+
+	if cpu.HiLow.hi != -1 {
 		t.Errorf("hi register wrong. expected=%d, got=%d", 0, cpu.HiLow.hi)
 	}
 }
