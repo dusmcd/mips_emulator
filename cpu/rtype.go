@@ -42,7 +42,7 @@ func (cpu *CPU) msubInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) maddInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
-	product := op1 * op2
+	product := int64(op1 * op2)
 	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -55,7 +55,7 @@ func (cpu *CPU) maddInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) madduInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
-	product := uint32(op1) * uint32(op2)
+	product := uint64(op1 * op2)
 	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -277,9 +277,9 @@ func (cpu *CPU) divUInstr(rs, rt, rd, shift uint8) error {
 }
 
 func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
-	op1 := uint32(cpu.Registers[rs])
-	op2 := uint32(cpu.Registers[rt])
-	product := op1 * op2
+	op1 := (cpu.Registers[rs])
+	op2 := (cpu.Registers[rt])
+	product := uint64(op1 * op2)
 	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 
@@ -289,7 +289,7 @@ func (cpu * CPU) multUInstr(rs, rt, rd, shift uint8) error {
 func (cpu *CPU) multInstr(rs, rt, rd, shift uint8) error {
 	op1 := cpu.Registers[rs]
 	op2 := cpu.Registers[rt]
-	product := op1 * op2
+	product := int64(op1 * op2)
 	cpu.HiLow.hi = defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
 	cpu.HiLow.lo = defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
 

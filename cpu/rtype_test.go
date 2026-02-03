@@ -6,6 +6,61 @@ import (
 	"mips_emulator/memory"
 )
 
+func getLoBits(product uint64) defs.Word {
+	return defs.Word(product & 0x00000000FFFFFFFF)
+}
+
+func getHiBits(product uint64) defs.Word {
+	return defs.Word((product & 0xFFFFFFFF00000000) >> 32)
+}
+
+func TestMadd(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = 3000000 // setting $t0
+	cpu.Registers[9] = 5000000 // setting $t1
+	product := int64(cpu.Registers[8] * cpu.Registers[9])
+
+	// madd $t0, $t1
+	cpu.Instruction = 0x71090000
+	cpu.DecodeInstr()
+
+	loBits := getLoBits(uint64(product))
+	hiBits := getHiBits(uint64(product))
+
+	if cpu.HiLow.hi != hiBits {
+		t.Errorf("HI register wrong. expected=%d, got=%d", hiBits, cpu.HiLow.hi)
+	}
+
+	if cpu.HiLow.lo != loBits {
+		t.Errorf("LO register wrong. expected=%d, got=%d", loBits, cpu.HiLow.lo)
+	}
+}
+
+func TestMaddu(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = -4095 // setting $t0
+	cpu.Registers[9] = 2 // setting $t1
+
+	//product := uint64(cpu.Registers[8]) * uint64(cpu.Registers[9])
+	product := uint64(cpu.Registers[8] * cpu.Registers[9])
+
+	// maddu $t0, $t1
+	cpu.Instruction = 0x71090001
+	cpu.DecodeInstr()
+
+	loBits := getLoBits(uint64(product))
+	hiBits := getHiBits(uint64(product))
+
+	if uint32(cpu.HiLow.hi) != uint32(hiBits) {
+		t.Errorf("HI register wrong. expected=%d, got=%d", hiBits, cpu.HiLow.hi)
+	}
+
+	if uint32(cpu.HiLow.lo) != uint32(loBits) {
+		t.Errorf("LO register wrong. expected=%d, got=%d", loBits, cpu.HiLow.lo)
+	}
+
+}
+
 func TestJalr(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[16] = 0x04 // setting $s0
@@ -242,8 +297,8 @@ func TestMultiplyU(t *testing.T) {
 	
 	cpu.Instruction = 0x01285019
 	cpu.DecodeInstr()
-	var signedInt defs.Word = -2
-	expected := uint32(signedInt)
+
+	expected := uint64(cpu.Registers[8] * cpu.Registers[9])
 
 	hi := defs.Word(uint(expected) & 0xFFFFFFFF00000000 >> 32)
 	lo := defs.Word(uint(expected) & 0x00000000FFFFFFFF)
