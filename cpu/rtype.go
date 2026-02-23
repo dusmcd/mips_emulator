@@ -11,6 +11,34 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
+func (cpu *CPU) mthiInstr(rs, rt, rd, shift uint8) error {
+	val := cpu.Registers[rs]
+	cpu.HiLow.hi = val
+
+	return nil
+}
+
+func (cpu *CPU) mtloInstr(rs, rt, rd, shift uint8) error {
+	val := cpu.Registers[rs]
+	cpu.HiLow.lo = val
+
+	return nil
+}
+
+func (cpu *CPU) mulInstr(rs, rt, rd, shift uint8) error {
+	op1 := signExtend(cpu.Registers[rs])
+	op2 := signExtend(cpu.Registers[rt])
+	product := op1 * op2
+	hiBits := defs.Word(uint(product) & uint(0xFFFFFFFF00000000) >> 32)
+	loBits := defs.Word(uint(product) & uint(0x00000000FFFFFFFF))
+
+	cpu.Registers[rd] = loBits
+	cpu.HiLow.lo = loBits
+	cpu.HiLow.hi = hiBits
+
+	return nil
+}
+
 func (cpu *CPU) msubuInstr(rs, rt, rd, shift uint8) error {
 	op1 := uint64(uint(cpu.Registers[rs]) & 0x00000000FFFFFFFF)
 	op2 := uint64(uint(cpu.Registers[rt]) & 0x00000000FFFFFFFF)

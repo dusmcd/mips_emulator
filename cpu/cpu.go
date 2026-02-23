@@ -89,15 +89,18 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 		0x2B: cpu.sltuInstr, 
 		0x08: cpu.jrInstr,
 		0x09: cpu.jalrInstr,
+		0x11: cpu.mthiInstr, // need to test
+		0x13: cpu.mtloInstr, // need to test
 	}
 
 	funcMapC = map[uint8]RFunc{
 		0x20: cpu.clzInstr,
 		0x21: cpu.cloInstr,
-		0x00: cpu.maddInstr, // need to test
-		0x01: cpu.madduInstr,// need to test
-		0x04: cpu.msubInstr,// need to test
-		0x05: cpu.msubuInstr,// need to test
+		0x00: cpu.maddInstr, 
+		0x01: cpu.madduInstr,
+		0x04: cpu.msubInstr,
+		0x05: cpu.msubuInstr,
+		0x02: cpu.mulInstr, // need to test
 	}
 
 	opMap = map[uint8]IInstr{
