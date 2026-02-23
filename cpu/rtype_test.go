@@ -14,6 +14,47 @@ func getHiBits(product uint64) defs.Word {
 	return defs.Word((product & 0xFFFFFFFF00000000) >> 32)
 }
 
+func TestMul(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = 5 // set register $t0
+	cpu.Registers[9] = 10 // set register $t1
+
+	// mul $t2, $t1, $t0
+	cpu.Instruction = 0x71285002
+	cpu.DecodeInstr()
+
+	if cpu.Registers[10] != 50 {
+		t.Errorf("destination register wrong. expected=50, got=%d", cpu.Registers[10])
+	}
+
+}
+
+func TestMtlo(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = 1000000
+
+	// mthi $t0
+	cpu.Instruction = 0x01000013
+	cpu.DecodeInstr()
+
+	if cpu.HiLow.lo != 1000000 {
+		t.Errorf("lo register wrong. expected=%d, got=%d", 1000000, cpu.HiLow.lo)
+	}
+}
+
+func TestMthi(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.Registers[8] = 1000000
+
+	// mthi $t0
+	cpu.Instruction = 0x01000011
+	cpu.DecodeInstr()
+
+	if cpu.HiLow.hi != 1000000 {
+		t.Errorf("hi register wrong. expected=%d, got=%d", 1000000, cpu.HiLow.hi)
+	}
+}
+
 func TestMsub(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[8] = 3000000 // setting $t0
