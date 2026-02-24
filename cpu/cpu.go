@@ -89,8 +89,10 @@ func InitCPU(mem *memory.MainMemory, gp uint32) *CPU {
 		0x2B: cpu.sltuInstr, 
 		0x08: cpu.jrInstr,
 		0x09: cpu.jalrInstr,
-		0x11: cpu.mthiInstr, // need to test
-		0x13: cpu.mtloInstr, // need to test
+		0x11: cpu.mthiInstr, 
+		0x13: cpu.mtloInstr, 
+		0x10: cpu.mfhiInstr,
+		0x12: cpu.mfloInstr,
 	}
 
 	funcMapC = map[uint8]RFunc{

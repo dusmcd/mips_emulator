@@ -29,6 +29,34 @@ func TestMul(t *testing.T) {
 
 }
 
+func TestMflo(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.HiLow.lo = 1000000
+
+	// mflo $t0
+	cpu.Instruction = 0x01000012
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 1000000 {
+		t.Errorf("lo register wrong. expected=%d, got=%d", 1000000, cpu.Registers[8])
+	}
+}
+
+
+func TestMfhi(t *testing.T) {
+	cpu := InitCPU(memory.InitMemory(), 0)
+	cpu.HiLow.hi = 1000000
+
+	// mfhi $t0
+	cpu.Instruction = 0x01000010
+	cpu.DecodeInstr()
+
+	if cpu.Registers[8] != 1000000 {
+		t.Errorf("hi register wrong. expected=%d, got=%d", 1000000, cpu.Registers[8])
+	}
+}
+
+
 func TestMtlo(t *testing.T) {
 	cpu := InitCPU(memory.InitMemory(), 0)
 	cpu.Registers[8] = 1000000

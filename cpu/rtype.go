@@ -11,6 +11,17 @@ const (
 
 type RFunc func(rs, rt, rd, shift uint8) error
 
+func (cpu *CPU) mfhiInstr(rs, rt, rd, shift uint8) error {
+	cpu.Registers[rs] = cpu.HiLow.hi
+	return nil
+}
+
+func (cpu *CPU) mfloInstr(rs, rt, rd, shift uint8) error {
+	cpu.Registers[rs] = cpu.HiLow.lo
+	return nil
+}
+
+
 func (cpu *CPU) mthiInstr(rs, rt, rd, shift uint8) error {
 	val := cpu.Registers[rs]
 	cpu.HiLow.hi = val
